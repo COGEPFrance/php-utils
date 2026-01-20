@@ -1,0 +1,138 @@
+name: Symfony PR Quality Gate
+
+on:
+    pull_request:
+        branches: [ main, develop ]
+
+permissions:
+    contents: read
+    pull-requests: write
+
+jobs:
+    quality:
+        runs-on: ubuntu-latest
+
+        steps:
+            -   name: Checkout du code
+                uses: actions/checkout@v4
+
+            -   name: Configurer PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: '8.4'
+                    extensions: mbstring, intl, pdo_mysql, zip
+                    coverage: pcov
+                    tools: composer:v2
+
+            -   name: Setup Environment
+                run: |
+                    if [ ! -f .env ]; then
+                      cp .env.test .env
+                    fi
+
+            -   name: Installer les dépendances
+                run: composer install --no-progress --prefer-dist --optimize-autoloader
+
+            # --- LINT (PHP-CS-FIXER) ---
+            -   name: Lint (php-cs-fixer)
+                id: lint
+                continue-on-error: true
+                run: |
+                    set -o pipefail
+                    composer lint 2>&1 | tee lint.log
+
+            # --- STATIC ANALYSIS (PHPSTAN) ---
+            -   name: STATIC ANALYSIS (PHPSTAN)
+                id: phpstan
+                continue-on-error: true
+                run: |
+                    set -o pipefail
+                    composer phpstan 2>&1 | tee phpstan.log
+
+            # --- COMPLEXITY ---
+
+            -   name: Complexity (ECS)
+                id: complexity
+                continue-on-error: true
+                run: |
+                    set -o pipefail
+                    composer complexity 2>&1 | tee complexity.log
+
+            # --- SECURITY (COMPOSER AUDIT) ---
+            -   name: Security (Audit)
+                id: security
+                continue-on-error: true
+                run: |
+                    set -o pipefail
+                    composer audit 2>&1 | tee security.log
+
+            # --- TESTS & COVERAGE (PHPUNIT) ---
+            -   name: Tests & Coverage
+                id: tests
+                continue-on-error: true
+                run: |
+                    set -o pipefail
+                    composer unit-test 2>&1 | tee tests.log
+
+            # --- FAIL THE JOB IF BLOCKING CHECKS FAILED ---
+            -   name: Enforce quality gate
+                if: always()
+                run: |
+                    FAIL=0
+                    [ "${{ steps.lint.outcome }}" = "failure" ] && FAIL=1
+                    [ "${{ steps.phpstan.outcome }}" = "failure" ] && FAIL=1
+                    [ "${{ steps.security.outcome }}" = "failure" ] && FAIL=1
+                    [ "${{ steps.tests.outcome }}" = "failure" ] && FAIL=1
+                    [ "${{ steps.complexity.outcome }}" = "failure" ] && FAIL=1
+                    exit $FAIL
+
+            # --- PREPARE COMMENT ---
+            -   name: Prepare PR quality summary
+                if: always()
+                run: |
+                    status() {
+                      if [ "$1" = "success" ]; then echo "✅ passed"; else echo "❌ failed"; fi
+                    }
+
+                    section_logs() {
+                      TITLE="$1"; FILE="$2"; LINES="$3"
+                      echo "### ${TITLE}" >> pr_comment.md
+                      echo "\`\`\`" >> pr_comment.md
+                      head -n $LINES "$FILE" >> pr_comment.md
+                      echo "\`\`\`" >> pr_comment.md
+                      echo "" >> pr_comment.md
+                    }
+
+                    COVERAGE_SCORE=$(cat coverage_score.txt 2>/dev/null || echo "0")
+
+                    echo "## 🧪 Symfony PR Quality Report" > pr_comment.md
+                    echo "" >> pr_comment.md
+                    echo "- 🧹 **Lint (CS-Fixer)**: $(status '${{ steps.lint.outcome }}')" >> pr_comment.md
+                    echo "- 🧠 **Static Analysis (PHPStan)**: $(status '${{ steps.phpstan.outcome }}')" >> pr_comment.md
+                    echo "- 🧠 **Complexity**: $(status '${{ steps.complexity.outcome }}')" >> pr_comment.md
+                    echo "- 🔐 **Security (Audit)**: $(status '${{ steps.security.outcome }}')" >> pr_comment.md
+                    echo "- 📊 **Tests & Coverage**: $(status '${{ steps.tests.outcome }}') ($COVERAGE_SCORE%)" >> pr_comment.md
+
+                    if [ "${{ steps.lint.outcome }}" = "failure" ]; then section_logs "Lint Issues" lint.log 20; fi
+                    if [ "${{ steps.phpstan.outcome }}" = "failure" ]; then section_logs "PHPStan Findings" phpstan.log 30; fi
+                    if [ "${{ steps.complexity.outcome }}" = "failure" ]; then section_logs "Complexity Warnings" complexity.log 20; fi
+                    if [ "${{ steps.security.outcome }}" = "failure" ]; then section_logs "Security Vulnerabilities" security.log 20; fi
+                    if [ "${{ steps.tests.outcome }}" = "failure" ]; then section_logs "PHPUNIT Tests" tests.log 20; fi
+
+            # --- POST / UPDATE COMMENT ---
+            -   name: Comment PR
+                if: always() && github.event_name == 'pull_request'
+                uses: actions/github-script@v7
+                with:
+                    script: |
+                        const fs = require('fs');
+                        const body = fs.readFileSync('pr_comment.md', 'utf8');
+                        const { owner, repo } = context.repo;
+                        const issue_number = context.payload.pull_request.number;
+                        const comments = await github.rest.issues.listComments({ owner, repo, issue_number });
+                        const botComment = comments.data.find(c => c.user.type === 'Bot' && c.body.includes('Symfony PR Quality Report'));
+                        if (botComment) {
+                          await github.rest.issues.updateComment({ owner, repo, comment_id: botComment.id, body });
+                        } else {
+                          await github.rest.issues.createComment({ owner, repo, issue_number, body });
+                        }

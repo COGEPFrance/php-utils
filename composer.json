@@ -1,0 +1,45 @@
+{
+    "name": "cogep/php-utils",
+    "description": "Librairie de composants utilitaires PHP",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "Cogep\\PhpUtils\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "COGEPFrance"
+        }
+    ],
+    "require": {},
+    "require-dev": {
+        "ext-simplexml": "*",
+        "captainhook/captainhook-phar": "^5.27.4",
+        "captainhook/hook-installer": "^1.0.4",
+        "mockery/mockery": "^1.6.12",
+        "phpstan/phpstan": "^2.1.33",
+        "phpstan/phpstan-symfony": "^2.0.9",
+        "phpunit/phpunit": "^12.5.5",
+        "slevomat/coding-standard": "^8.26",
+        "symplify/easy-coding-standard": "^13.0.4"
+    },
+    "scripts": {
+        "phpstan": "vendor/bin/phpstan analyse src/ --level 8 --no-progress",
+        "lint": "vendor/bin/ecs check --config=./config/ecs-lint.php --fix",
+        "test-lint": "vendor/bin/ecs check --config=./config/ecs-lint.php",
+        "complexity": "vendor/bin/ecs check --config=./config/ecs-quality.php --no-progress-bar --ansi"
+    },
+    "config": {
+        "allow-plugins": {
+            "captainhook/hook-installer": true,
+            "captainhook/captainhook-phar": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "extra": {
+        "captainhook": {
+            "config": "config/captainhook.json"
+        }
+    }
+}
