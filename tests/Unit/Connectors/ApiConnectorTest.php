@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Unit\Connectors;
 
 use Cogep\PhpUtils\Connectors\ApiConnector;

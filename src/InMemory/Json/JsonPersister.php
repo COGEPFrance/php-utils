@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Cogep\PhpUtils\InMemory\Json;
 
 use Cogep\PhpUtils\Classes\EntityInterface;
@@ -8,7 +7,6 @@ use Cogep\PhpUtils\InMemory\NoDatasToSaveException;
 use Cogep\PhpUtils\InMemory\PersisterResultEntity;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-
 
 /**
  * @template T of EntityInterface
@@ -19,18 +17,13 @@ class JsonPersister
 
     public function __construct(
         #[Autowire('%kernel.project_dir%')]
-        private readonly string          $projectDir,
+        private readonly string $projectDir,
         private readonly LoggerInterface $logger,
-    )
-    {
+    ) {
     }
 
     /**
-     * @param string $filename
      * @param iterable<T> $datas
-     * @return PersisterResultEntity
-     * @throws NoDatasToSaveException
-     * @throws \JsonException
      */
     public function save(string $filename, iterable $datas): PersisterResultEntity
     {
@@ -42,7 +35,7 @@ class JsonPersister
         $fullPath = $this->getFullPath($filename);
         $directory = dirname($fullPath);
 
-        if (!is_dir($directory)) {
+        if (! is_dir($directory)) {
             mkdir($directory, 0777, true);
         }
 

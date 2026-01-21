@@ -1,6 +1,7 @@
 <?php
 
 namespace Unit\InMemory\Fetcher;
+
 use Cogep\PhpUtils\InMemory\Csv\CsvFetcher;
 use PHPUnit\Framework\TestCase;
 
@@ -11,7 +12,7 @@ class CsvFetcherTest extends TestCase
         $this->tempDir = sys_get_temp_dir() . '/fetcher_test_' . uniqid();
         $this->csvPath = $this->tempDir . '/' . CsvFetcher::SOURCE_FILE;
 
-        if (!is_dir($this->csvPath)) {
+        if (! is_dir($this->csvPath)) {
             mkdir($this->csvPath, 0777, true);
         }
 

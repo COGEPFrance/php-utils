@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Unit\InMemory\Persister;
-
 
 use Cogep\PhpUtils\InMemory\Json\JsonPersister;
 use Cogep\PhpUtils\InMemory\NoDatasToSaveException;

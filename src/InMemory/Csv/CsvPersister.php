@@ -20,7 +20,6 @@ class CsvPersister
 
     /**
      * @param iterable<int|string, mixed> $datas
-     * @throws NoDatasToSaveException
      */
     public function save(string $filename, iterable $datas, int $warmupLimit = 100): PersisterResultEntity
     {
@@ -117,7 +116,6 @@ class CsvPersister
 
     /**
      * @param array<mixed,mixed> $value
-     * @throws \JsonException
      */
     private function formatArray(array $value): string
     {

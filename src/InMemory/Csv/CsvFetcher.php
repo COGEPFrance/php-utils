@@ -2,7 +2,6 @@
 
 namespace Cogep\PhpUtils\InMemory\Csv;
 
-
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class CsvFetcher

@@ -1,7 +1,7 @@
 <?php
 
-
 namespace Cogep\PhpUtils\InMemory;
+
 class NoDatasToSaveException extends \Exception
 {
     public function __construct()

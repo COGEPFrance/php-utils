@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Cogep\PhpUtils\Connectors;
 
 use Symfony\Contracts\HttpClient\ResponseInterface;

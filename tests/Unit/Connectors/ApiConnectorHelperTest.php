@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Unit\Connectors;
 
 use Cogep\PhpUtils\Connectors\ApiConnectorHelper;
@@ -62,8 +61,8 @@ class ApiConnectorHelperTest extends TestCase
             'TEST_API',
             $items,
             1,
-            fn($c) => $c->request('GET', '/'),
-            fn($r) => yield json_decode($r->getContent(), true)
+            fn ($c) => $c->request('GET', '/'),
+            fn ($r) => yield json_decode($r->getContent(), true)
         );
 
         $results = iterator_to_array($generator);
@@ -124,7 +123,7 @@ class ApiConnectorHelperTest extends TestCase
             'TEST_API',
             $items,
             1,
-            fn() => $this->createMock(ResponseInterface::class),
+            fn () => $this->createMock(ResponseInterface::class),
             function () {
                 yield [];
             }
@@ -147,7 +146,7 @@ class ApiConnectorHelperTest extends TestCase
             'API',
             $items,
             1,
-            fn($c) => $c->request('GET', '/'),
+            fn ($c) => $c->request('GET', '/'),
             function () {
                 yield 'ok';
             }
@@ -161,9 +160,15 @@ class ApiConnectorHelperTest extends TestCase
         $items = ['persistent_fail'];
 
         $client = new MockHttpClient([
-            new MockResponse('Fail 1', ['http_code' => 500]),
-            new MockResponse('Fail 2', ['http_code' => 500]),
-            new MockResponse('Fail 3', ['http_code' => 500]),
+            new MockResponse('Fail 1', [
+                'http_code' => 500,
+            ]),
+            new MockResponse('Fail 2', [
+                'http_code' => 500,
+            ]),
+            new MockResponse('Fail 3', [
+                'http_code' => 500,
+            ]),
         ]);
 
         $this->logger->shouldReceive('error')
@@ -171,9 +176,12 @@ class ApiConnectorHelperTest extends TestCase
             ->once();
 
         $generator = $this->helper->processInBatches(
-            $client, 'TEST', $items, 1,
-            fn($c) => $c->request('GET', '/'),
-            fn() => yield []
+            $client,
+            'TEST',
+            $items,
+            1,
+            fn ($c) => $c->request('GET', '/'),
+            fn () => yield []
         );
 
         iterator_to_array($generator);
@@ -187,25 +195,33 @@ class ApiConnectorHelperTest extends TestCase
         $client = \Mockery::mock(HttpClientInterface::class);
         $chunk = \Mockery::mock(ChunkInterface::class);
 
+        $response->shouldReceive('getInfo')
+            ->with('url')
+            ->andReturn('http://api.test/timeout');
+        $response->shouldReceive('cancel')
+            ->byDefault();
 
-        $response->shouldReceive('getInfo')->with('url')->andReturn('http://api.test/timeout');
-        $response->shouldReceive('cancel')->byDefault();
+        $chunk->shouldReceive('isTimeout')
+            ->andReturn(true);
+        $chunk->shouldReceive('isLast')
+            ->andReturn(false);
 
-        $chunk->shouldReceive('isTimeout')->andReturn(true);
-        $chunk->shouldReceive('isLast')->andReturn(false);
-
-        $client->shouldReceive('stream')->andReturn([[$response, $chunk]]);
-        $client->shouldReceive('stream')->andReturn([]);
+        $client->shouldReceive('stream')
+            ->andReturn([[$response, $chunk]]);
+        $client->shouldReceive('stream')
+            ->andReturn([]);
 
         $this->logger->shouldReceive('warning')
             ->with(\Mockery::pattern('/Timeout détecté|Échec sur/'))
-            ->atLeast()->once();
+            ->atLeast()
+            ->once();
 
         $this->logger->shouldReceive('warning')
             ->with(\Mockery::pattern('/Lancement rattrapage/'))
-            ->atLeast()->once();
+            ->atLeast()
+            ->once();
 
-        $generator = $this->helper->processInBatches($client, 'TEST', $items, 1, fn() => $response, fn() => yield []);
+        $generator = $this->helper->processInBatches($client, 'TEST', $items, 1, fn () => $response, fn () => yield []);
         iterator_to_array($generator);
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 namespace Cogep\PhpUtils\Classes\DynamicProperties;
+
 #[\AllowDynamicProperties]
 abstract class DynamicPropertyClass
 {

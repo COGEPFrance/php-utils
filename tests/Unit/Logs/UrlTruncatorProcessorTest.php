@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Unit\Logs;
 
 use Cogep\PhpUtils\Logs\UrlTruncatorProcessor;

@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Unit\Mapping;
 
 use Cogep\PhpUtils\Mapping\DtoEntityMapper;

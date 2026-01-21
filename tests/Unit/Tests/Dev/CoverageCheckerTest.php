@@ -7,21 +7,26 @@ use PHPUnit\Framework\TestCase;
 
 class CoverageCheckerTest extends TestCase
 {
-    private string $cloverFile = 'clover.xml';
-    private string $scoreFile = 'coverage_score.txt';
-
-    const string XML_COVER_90 =
-        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+    public const string XML_COVER_90 =
+        '<?xml version="1.0" encoding="UTF-8"?>
             <coverage>
                 <project>
-                    <metrics elements=\"100\" coveredelements=\"90\"/>
+                    <metrics elements="100" coveredelements="90"/>
                 </project>
-            </coverage>";
+            </coverage>';
+
+    private string $cloverFile = 'clover.xml';
+
+    private string $scoreFile = 'coverage_score.txt';
 
     protected function tearDown(): void
     {
-        if (file_exists($this->cloverFile)) unlink($this->cloverFile);
-        if (file_exists($this->scoreFile)) unlink($this->scoreFile);
+        if (file_exists($this->cloverFile)) {
+            unlink($this->cloverFile);
+        }
+        if (file_exists($this->scoreFile)) {
+            unlink($this->scoreFile);
+        }
     }
 
     public function testCalculateSuccess(): void
@@ -40,9 +45,9 @@ class CoverageCheckerTest extends TestCase
 
     public function testCalculateThrowsExceptionOnInvalidFormat(): void
     {
-        file_put_contents($this->cloverFile, "<invalid></invalid>");
+        file_put_contents($this->cloverFile, '<invalid></invalid>');
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage("Format du fichier de coverage invalide");
+        $this->expectExceptionMessage('Format du fichier de coverage invalide');
         CoverageChecker::calculate($this->cloverFile);
     }
 
@@ -62,7 +67,10 @@ class CoverageCheckerTest extends TestCase
 
     public function testCheckOutputsFailWhenBelowThreshold(): void
     {
-        file_put_contents($this->cloverFile, "<?xml version=\"1.0\"?><coverage><project><metrics elements=\"100\" coveredelements=\"10\"/></project></coverage>");
+        file_put_contents(
+            $this->cloverFile,
+            '<?xml version="1.0"?><coverage><project><metrics elements="100" coveredelements="10"/></project></coverage>'
+        );
 
         ob_start();
         CoverageChecker::check(80, false);
@@ -74,7 +82,9 @@ class CoverageCheckerTest extends TestCase
 
     public function testCheckHandlesExceptionOutput(): void
     {
-        if (file_exists($this->cloverFile)) unlink($this->cloverFile);
+        if (file_exists($this->cloverFile)) {
+            unlink($this->cloverFile);
+        }
 
         ob_start();
         CoverageChecker::check(80, false);

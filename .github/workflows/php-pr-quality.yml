@@ -33,7 +33,7 @@ jobs:
                 continue-on-error: true
                 run: |
                     set -o pipefail
-                    composer lint 2>&1 | tee lint.log
+                    composer lint-test 2>&1 | tee lint.log
 
             # --- STATIC ANALYSIS (PHPSTAN) ---
             -   name: STATIC ANALYSIS (PHPSTAN)

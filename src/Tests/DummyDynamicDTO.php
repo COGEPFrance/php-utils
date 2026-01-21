@@ -1,7 +1,7 @@
 <?php
 
-
 namespace Cogep\PhpUtils\Tests;
+
 use Cogep\PhpUtils\Classes\DTOInterface;
 use Cogep\PhpUtils\Classes\DynamicProperties\DynamicPropertyClass;
 

@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Cogep\PhpUtils\Tests;
 
 use Cogep\PhpUtils\Classes\DynamicProperties\DynamicPropertyClass;

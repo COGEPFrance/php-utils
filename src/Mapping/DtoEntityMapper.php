@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Cogep\PhpUtils\Mapping;
 
 use Cogep\PhpUtils\Classes\DTOInterface;

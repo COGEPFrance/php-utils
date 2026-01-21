@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Unit\InMemory\Fetcher;
 
 use Cogep\PhpUtils\Classes\EntityInterface;

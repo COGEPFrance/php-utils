@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Cogep\PhpUtils\Logs;
-
 
 use Monolog\Formatter\FormatterInterface;
 use Monolog\LogRecord;
@@ -35,6 +33,6 @@ class LoggerFormator implements FormatterInterface
 
     public function formatBatch(array $records)
     {
-        return array_map(fn($record) => $this->format($record), $records);
+        return array_map(fn ($record) => $this->format($record), $records);
     }
 }

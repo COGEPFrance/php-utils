@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Cogep\PhpUtils\Logs;
 
 use Monolog\LogRecord;

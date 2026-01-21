@@ -11,7 +11,6 @@ use Symfony\Component\TypeInfo\Type;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
-
 /**
  * @template T
  * @template R of DTOInterface
@@ -24,10 +23,9 @@ class ApiConnectorHelper
     public function __construct(
         #[Target('json_streamer.stream_reader')]
         private readonly StreamReaderInterface $streamReader,
-        protected readonly LoggerInterface     $logger,
-        private readonly ClockInterface        $clock,
-    )
-    {
+        protected readonly LoggerInterface $logger,
+        private readonly ClockInterface $clock,
+    ) {
     }
 
     /**
@@ -42,14 +40,13 @@ class ApiConnectorHelper
      */
     public function processInBatches(
         HttpClientInterface $client,
-        string              $api,
-        array               $items,
-        int                 $poolSize,
-        callable            $requestCallback,
-        callable            $responseCallback,
-        int                 $retryLevel = 0
-    ): \Generator
-    {
+        string $api,
+        array $items,
+        int $poolSize,
+        callable $requestCallback,
+        callable $responseCallback,
+        int $retryLevel = 0
+    ): \Generator {
         /** @var array<T> $failedItems */
         $failedItems = [];
 
@@ -85,7 +82,7 @@ class ApiConnectorHelper
      */
     public function streamResponse(ResponseInterface $response): iterable
     {
-        if (!method_exists($response, 'toStream')) {
+        if (! method_exists($response, 'toStream')) {
             throw new \RuntimeException('La réponse HTTP ne supporte pas le streaming.');
         }
 
@@ -102,11 +99,10 @@ class ApiConnectorHelper
      */
     private function prepareBatchRequests(
         HttpClientInterface $client,
-        array               $batchItems,
-        callable            $requestCallback,
-        array               &$failedItems
-    ): \SplObjectStorage
-    {
+        array $batchItems,
+        callable $requestCallback,
+        array &$failedItems
+    ): \SplObjectStorage {
         /** @var \SplObjectStorage<ResponseInterface, T> $responsesMap */
         $responsesMap = new \SplObjectStorage();
         foreach ($batchItems as $item) {
@@ -131,11 +127,10 @@ class ApiConnectorHelper
      */
     private function streamBatchResponses(
         HttpClientInterface $client,
-        \SplObjectStorage   $responsesMap,
-        callable            $responseCallback,
-        array               &$failedItems
-    ): \Generator
-    {
+        \SplObjectStorage $responsesMap,
+        callable $responseCallback,
+        array &$failedItems
+    ): \Generator {
         $responsesArray = iterator_to_array($responsesMap);
         /** @var \SplObjectStorage<ResponseInterface, mixed> $processedResponses */
         $processedResponses = new \SplObjectStorage();
@@ -176,13 +171,12 @@ class ApiConnectorHelper
      */
     private function handleRetries(
         HttpClientInterface $client,
-        string              $api,
-        array               $failedItems,
-        callable            $req,
-        callable            $res,
-        int                 $retryLevel
-    ): \Generator
-    {
+        string $api,
+        array $failedItems,
+        callable $req,
+        callable $res,
+        int $retryLevel
+    ): \Generator {
         if (empty($failedItems)) {
             return;
         }
@@ -206,15 +200,14 @@ class ApiConnectorHelper
      * @param array<T> $failedItems
      */
     private function handleGlobalStreamCrash(
-        array             $responses,
+        array $responses,
         \SplObjectStorage $processed,
         \SplObjectStorage $map,
-        array             &$failedItems,
-        string            $msg
-    ): void
-    {
+        array &$failedItems,
+        string $msg
+    ): void {
         foreach ($responses as $response) {
-            if (!$processed->contains($response)) {
+            if (! $processed->contains($response)) {
                 $this->handleFailure($response, $map, $failedItems, "Crash itérateur: {$msg}");
             }
         }
@@ -229,10 +222,9 @@ class ApiConnectorHelper
     private function handleFailure(
         ResponseInterface $response,
         \SplObjectStorage $responsesMap,
-        array             &$failedItems,
-        string            $error
-    ): void
-    {
+        array &$failedItems,
+        string $error
+    ): void {
         $item = $responsesMap[$response] ?? null;
         $url = $response->getInfo('url') ?? 'URL inconnue';
 

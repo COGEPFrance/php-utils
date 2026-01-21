@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Cogep\PhpUtils\Connectors;
 
 use Cogep\PhpUtils\Connectors\Configs\ApiClientConnectorConfig;
@@ -13,13 +12,12 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 abstract class ApiConnector
 {
     public function __construct(
-        protected readonly HttpClientInterface      $client,
+        protected readonly HttpClientInterface $client,
         protected readonly ApiClientConnectorConfig $config,
-        protected readonly CacheConnectorConfig     $cacheConfig,
-        protected readonly CacheInterface           $cache,
-        protected readonly LoggerInterface          $logger,
-    )
-    {
+        protected readonly CacheConnectorConfig $cacheConfig,
+        protected readonly CacheInterface $cache,
+        protected readonly LoggerInterface $logger,
+    ) {
     }
 
     /**
@@ -118,6 +116,6 @@ abstract class ApiConnector
             throw new \RuntimeException('Token invalide ou manquant dans la réponse API.');
         }
 
-        return (string)$data[$tokenAttribute];
+        return (string) $data[$tokenAttribute];
     }
 }
