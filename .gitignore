@@ -1,2 +1,9 @@
 /vendor/
 .idea
+clover.xml
+coverage_score.txt
+/.phpunit.cache/
+coverage-html/
+/.php-cs-fixer.php
+/.php-cs-fixer.cache
+phpstan.neon
