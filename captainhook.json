@@ -1,0 +1,25 @@
+{
+
+  "pre-commit": {
+    "enabled": true,
+    "actions": [
+      {
+        "action": "composer lint && git add {$STAGED_FILES}",
+        "label": "Nettoyage du code (Lint)"
+      },
+      {
+        "action": "composer complexity",
+        "label": "Vérification de la complexité"
+      },
+      {
+        "action": "composer phpstan",
+        "label": "Analyse statique PHPStan"
+      },
+      {
+        "action": "composer audit",
+        "label": "Sécurité des dépendances"
+      }
+    ]
+  }
+
+}
