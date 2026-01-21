@@ -24,12 +24,6 @@ jobs:
                     coverage: pcov
                     tools: composer:v2
 
-            -   name: Setup Environment
-                run: |
-                    if [ ! -f .env ]; then
-                      cp .env.test .env
-                    fi
-
             -   name: Installer les dépendances
                 run: composer install --no-progress --prefer-dist --optimize-autoloader
 
