@@ -42,7 +42,7 @@
         ],
         "phpstan": "vendor/bin/phpstan analyse src/ --level 8 --no-progress",
         "lint": "vendor/bin/ecs check --config=./config/ecs-lint.php --fix",
-        "test-lint": "vendor/bin/ecs check --config=./config/ecs-lint.php",
+        "lint-test": "vendor/bin/ecs check --config=./config/ecs-lint.php",
         "complexity": "vendor/bin/ecs check --config=./config/ecs-quality.php --no-progress-bar --ansi"
     },
     "config": {
