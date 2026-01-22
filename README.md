@@ -1,4 +1,4 @@
-# 🛠️ Librairie utilitaire PHP/Symfony (`cogep/php-utils`)
+# 🛠️ Librairie utilitaire PHP/Symfony (`cogepfrance/php-utils`)
 
 Cette librairie regroupe un ensemble de composants utilitaires pour uniformiser le développement des projets (Connecteurs, Mapping, DTO, etc.).
 
@@ -41,5 +41,6 @@ Cette librairie regroupe un ensemble de composants utilitaires pour uniformiser 
 * **Dev - CoverageChecker** : Outil de contrôle qualité qui analyse le fichier `clover.xml`.
     * Permet de configurer un seuil (`threshold`) de couverture minimum.
     * Stoppe le processus (`exit 1`) si le pourcentage de couverture est insuffisant.
+
 
 ---
