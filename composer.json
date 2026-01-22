@@ -1,5 +1,5 @@
 {
-    "name": "cogep/php-utils",
+    "name": "cogepfrance/php-utils",
     "description": "Librairie de composants utilitaires PHP",
     "type": "library",
     "autoload": {
