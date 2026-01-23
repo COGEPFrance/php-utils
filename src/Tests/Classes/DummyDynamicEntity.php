@@ -1,6 +1,6 @@
 <?php
 
-namespace Cogep\PhpUtils\Tests;
+namespace Cogep\PhpUtils\Tests\Classes;
 
 use Cogep\PhpUtils\Classes\DynamicProperties\DynamicPropertyClass;
 use Cogep\PhpUtils\Classes\EntityInterface;

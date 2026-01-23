@@ -4,7 +4,7 @@ namespace Unit\InMemory\Persister;
 
 use Cogep\PhpUtils\InMemory\Json\JsonPersister;
 use Cogep\PhpUtils\InMemory\NoDatasToSaveException;
-use Cogep\PhpUtils\Tests\DummyDynamicEntity;
+use Cogep\PhpUtils\Tests\Classes\DummyDynamicEntity;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 

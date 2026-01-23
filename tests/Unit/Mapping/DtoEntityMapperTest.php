@@ -3,8 +3,8 @@
 namespace Unit\Mapping;
 
 use Cogep\PhpUtils\Mapping\DtoEntityMapper;
-use Cogep\PhpUtils\Tests\DummyDynamicDTO;
-use Cogep\PhpUtils\Tests\DummyDynamicEntity;
+use Cogep\PhpUtils\Tests\Classes\DummyDynamicDTO;
+use Cogep\PhpUtils\Tests\Classes\DummyDynamicEntity;
 use PHPUnit\Framework\TestCase;
 
 class DtoEntityMapperTest extends TestCase
