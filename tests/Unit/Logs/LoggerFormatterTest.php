@@ -25,7 +25,10 @@ class LoggerFormatterTest extends TestCase
             datetime: new \DateTimeImmutable('2026-01-20 10:00:00'),
             channel: 'app',
             level: Level::Info,
-            message: 'Message de test'
+            message: 'Message de test',
+            context: [
+                'test' => 'truc',
+            ]
         );
 
         $output = $this->formatter->format($record);
@@ -33,6 +36,7 @@ class LoggerFormatterTest extends TestCase
         $this->assertStringContainsString("\033[32m[INFO]\033[0m", $output);
         $this->assertStringContainsString('2026-01-20 10:00:00', $output);
         $this->assertStringContainsString('Message de test', $output);
+        $this->assertStringContainsString('{"test":"truc"}', $output);
         $this->assertStringEndsWith("\n", $output);
     }
 

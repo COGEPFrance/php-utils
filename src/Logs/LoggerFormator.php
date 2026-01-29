@@ -21,13 +21,19 @@ class LoggerFormator implements FormatterInterface
         $color = self::COLORS[$levelName] ?? '';
         $reset = "\033[0m";
 
+        $context = '';
+        if (! empty($record->context)) {
+            $context = ' ' . json_encode($record->context, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        }
+
         return sprintf(
-            "[%s] %s[%s]%s %s\n",
+            "[%s] %s[%s]%s %s %s\n",
             $record->datetime->format('Y-m-d H:i:s'),
             $color,
             $levelName,
             $reset,
-            $record->message
+            $record->message,
+            $context
         );
     }
 
