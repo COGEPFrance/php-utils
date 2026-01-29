@@ -32,11 +32,7 @@ abstract class AbstractApiConnectorTestCase extends TestCase
         $this->logger = $this->createMock(LoggerInterface::class);
 
         // Valeurs par défaut pour les tests
-        $this->apiConfig = new ApiClientConnectorConfig(
-            'https://api.test.com',
-            'id',
-            'secret'
-        );
+        $this->apiConfig = new ApiClientConnectorConfig('https://api.test.com', 'id', 'secret');
         $this->cacheConfig = new CacheConnectorConfig('test_cache', 3600);
     }
 
