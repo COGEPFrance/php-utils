@@ -13,8 +13,12 @@ class DtoEntityMapper
     }
 
     /**
+     * @template T of EntityInterface
+     *
      * @param iterable<DTOInterface> $dtos Liste de DTOs
-     * @param class-string<EntityInterface>|EntityInterface $entity Entité finale
+     * @param class-string<T>|T $entity Entité finale
+     *
+     * @return T
      */
     public function mergeDtosToEntity(iterable $dtos, string|EntityInterface $entity): EntityInterface
     {
@@ -31,6 +35,18 @@ class DtoEntityMapper
         return $entity;
     }
 
+    /**
+     * @template T of EntityInterface
+     *
+     * @param class-string<T>|T $entity Entité finale
+     *
+     * @return T
+     */
+    public function dtoToEntity(DTOInterface $dto, string|EntityInterface $entity): EntityInterface
+    {
+        return $this->mergeDtosToEntity([$dto], $entity);
+    }
+
     private function hydrateProperty(EntityInterface $entity, string $key, mixed $value): void
     {
         if ($value === null || isset($entity->{$key})) {
@@ -42,13 +58,19 @@ class DtoEntityMapper
             return;
         }
 
+        $setter = 'set' . ucfirst($key);
+        if (method_exists($entity, $setter)) {
+            $entity->{$setter}($value);
+            return;
+        }
+
         if (property_exists($entity, $key)) {
             $entity->{$key} = $value;
             return;
         }
 
         throw new \InvalidArgumentException(sprintf(
-            "La classe %s n'a pas d'attribut %s et n'accepte pas de propriétés dynamiques.",
+            "La classe %s n'a pas d'attribut ou de setter pour '%s'.",
             $entity::class,
             $key
         ));
