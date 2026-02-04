@@ -2,7 +2,7 @@
 
 namespace Cogep\PhpUtils\Connectors;
 
-use Cogep\PhpUtils\Classes\DTOInterface;
+use Cogep\PhpUtils\Classes\Dtos\DTOInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\DependencyInjection\Attribute\Target;

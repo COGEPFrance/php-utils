@@ -20,7 +20,9 @@
         "symfony/monolog-bundle": "^4.0",
         "symfony/json-streamer": "^8.0",
         "symfony/clock": "^8.0",
-        "ext-simplexml": "*"
+        "ext-simplexml": "*",
+        "symfony/serializer": "^8.0",
+        "php-amqplib/php-amqplib": "^3.7"
     },
     "require-dev": {
         "captainhook/captainhook-phar": "^5.27.4",

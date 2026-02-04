@@ -2,7 +2,7 @@
 
 namespace Cogep\PhpUtils\Mapping;
 
-use Cogep\PhpUtils\Classes\DTOInterface;
+use Cogep\PhpUtils\Classes\Dtos\DTOInterface;
 use Cogep\PhpUtils\Classes\DynamicProperties\DynamicPropertyClass;
 use Cogep\PhpUtils\Classes\EntityInterface;
 
