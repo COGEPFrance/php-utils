@@ -90,7 +90,7 @@ class AbstractCommandTest extends MockeryTestCase
                 ->once();
         }
 
-        $command = new \FakeCommand($serializer, $logger, $helper);
+        $command = new FakeCommand($serializer, $logger, $helper);
         $command->resultatVoulu = $result;
 
         return new CommandTester($command);
