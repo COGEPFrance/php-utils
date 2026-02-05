@@ -35,8 +35,6 @@ return function (ContainerConfigurator $container): void {
     $services->set(RabbitMqWorker::class)
         ->arg('$dlq_queue', '%env(RABBITMQ_DLQ_QUEUE)%');
 
-//    $services->set(RabbitMqConsumerCommand::class);
-
     // Queues Handlers
     $services->set(RabbitMqCommandQueueHandler::class)
         ->arg('$handlers', tagged_iterator('command_message_handler'));
