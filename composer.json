@@ -13,14 +13,25 @@
         }
     ],
     "require": {
+        "php": ">=8.4",
+        "ext-amqp": "*",
+        "ext-curl": "*",
         "symfony/string": "^8.0",
         "symfony/http-client": "^8.0",
         "symfony/cache-contracts": "^3.6",
         "symfony/dependency-injection": "^8.0",
         "symfony/monolog-bundle": "^4.0",
         "symfony/json-streamer": "^8.0",
+        "symfony/serializer": "8.0.*",
+        "php-amqplib/php-amqplib": "^3.7.4",
         "symfony/clock": "^8.0",
-        "ext-simplexml": "*"
+        "ext-simplexml": "*",
+        "symfony/console": "8.0.*",
+        "symfony/messenger": "^8.0",
+        "symfony/routing": "^8.0",
+        "symfony/config": "^8.0",
+        "symfony/validator": "^8.0",
+        "symfony/framework-bundle": "^8.0"
     },
     "require-dev": {
         "captainhook/captainhook-phar": "^5.27.4",
