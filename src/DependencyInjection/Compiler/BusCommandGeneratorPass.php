@@ -3,6 +3,7 @@
 namespace Cogep\PhpUtils\DependencyInjection\Compiler;
 
 use Cogep\PhpUtils\Command\BusCommand;
+use Cogep\PhpUtils\Helpers\EntityValidator;
 use Cogep\PhpUtils\Inputs\Cli\ConsoleBusCommand;
 use Cogep\PhpUtils\Inputs\Cli\ConsoleCommandHelper;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
@@ -29,9 +30,11 @@ class BusCommandGeneratorPass implements CompilerPassInterface
                 $commandName,
                 $class,
                 new Reference('serializer'),
+                new Reference('serializer'),
                 new Reference('logger'),
                 new Reference(ConsoleCommandHelper::class),
                 new Reference('messenger.default_bus'),
+                new Reference(EntityValidator::class),
             ]);
 
             $definition->addTag('console.command', [
