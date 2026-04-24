@@ -6,7 +6,6 @@ use Cogep\PhpUtils\Command\BusCommand;
 use Cogep\PhpUtils\Command\CommandRegistry;
 use Cogep\PhpUtils\Config\Settings;
 use Cogep\PhpUtils\DependencyInjection\Compiler\BusCommandGeneratorPass;
-use Cogep\PhpUtils\Inputs\Rabbitmq\RabbitMqConsumerCommand;
 use Cogep\PhpUtils\Inputs\Rabbitmq\RabbitMqWorker;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use Symfony\Component\DependencyInjection\ChildDefinition;
@@ -14,7 +13,6 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
-use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 
 class CogepPhpUtilsBundle extends AbstractBundle
@@ -52,27 +50,26 @@ class CogepPhpUtilsBundle extends AbstractBundle
                 __DIR__ . '/Config/Settings.php',
             ]);
 
-        $settings = Settings::fromEnv();
         $services->set(Settings::class, Settings::class)
             ->factory([Settings::class, 'fromEnv']);
 
-        $mapping = array_map(function ($handlerClass) {
-            return service($handlerClass);
-        }, $settings->getQueueMapping());
-
-        $services->set('rabbitmq.handler_locator', ServiceLocator::class)
-            ->args([$mapping])
-            ->tag('container.service_locator');
-
         $services->set(AMQPStreamConnection::class)
-            ->args([$settings->rabbitHost, $settings->rabbitPort, $settings->rabbitUser, $settings->rabbitPass]);
+            ->factory([self::class, 'createConnection']);
 
         $services->set(RabbitMqWorker::class)
-            ->arg('$dlq_queue', $settings->rabbitQueueDlq)
-            ->arg('$handlerLocator', service('rabbitmq.handler_locator'));
+            ->autowire()
+            ->arg('$container', service('service_container'))
+            ->public();
+    }
 
-        $services->set(RabbitMqConsumerCommand::class)
-            ->arg('$queues', array_keys($mapping));
+    public static function createConnection(Settings $settings): AMQPStreamConnection
+    {
+        return new AMQPStreamConnection(
+            $settings->rabbitHost,
+            $settings->rabbitPort,
+            $settings->rabbitUser,
+            $settings->rabbitPass
+        );
     }
 
     public function build(ContainerBuilder $container): void

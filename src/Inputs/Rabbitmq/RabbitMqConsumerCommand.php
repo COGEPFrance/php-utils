@@ -2,6 +2,7 @@
 
 namespace Cogep\PhpUtils\Inputs\Rabbitmq;
 
+use Cogep\PhpUtils\Config\Settings;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -13,12 +14,16 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class RabbitMqConsumerCommand extends Command
 {
     /**
-     * @param array<string> $queues
+     * @var string[]
      */
+    private array $queues;
+
     public function __construct(
         private readonly RabbitMqWorker $rabbitMqWorker,
-        private readonly array $queues,
+        private readonly Settings $settings,
     ) {
+        $queueMapping = $this->settings->getQueueMapping();
+        $this->queues = array_keys($queueMapping);
         parent::__construct();
     }
 

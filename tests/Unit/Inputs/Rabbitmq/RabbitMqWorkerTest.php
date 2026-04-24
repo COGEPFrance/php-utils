@@ -3,6 +3,7 @@
 namespace Cogep\PhpUtils\Tests\Unit\Inputs\Rabbitmq;
 
 use Cogep\PhpUtils\Inputs\Rabbitmq\RabbitMqWorker;
+use Cogep\PhpUtils\Tests\Fixtures\TestConfig;
 use Mockery;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
@@ -17,20 +18,28 @@ class RabbitMqWorkerTest extends TestCase
 
     private $logger;
 
-    private $locator;
+    private $container;
 
     private $channel;
 
     private RabbitMqWorker $worker;
 
+    private TestConfig $config;
+
     protected function setUp(): void
     {
         $this->connection = Mockery::mock(AMQPStreamConnection::class);
         $this->logger = Mockery::mock(LoggerInterface::class)->shouldIgnoreMissing();
-        $this->locator = Mockery::mock(ContainerInterface::class);
+        $this->container = Mockery::mock(ContainerInterface::class);
         $this->channel = Mockery::mock(AMQPChannel::class);
+        $this->config = new TestConfig();
 
-        $this->worker = new RabbitMqWorker($this->connection, $this->logger, $this->locator, 'dlq_queue');
+        $this->worker = new RabbitMqWorker($this->connection, $this->logger, $this->container, $this->config);
+    }
+
+    protected function tearDown(): void
+    {
+        Mockery::close();
     }
 
     public function testConsumeThrowsExceptionIfHandlerMissing()
@@ -39,31 +48,30 @@ class RabbitMqWorkerTest extends TestCase
             ->andReturn($this->channel);
         $this->channel->shouldReceive('queue_declare');
 
-        $this->locator->shouldReceive('has')
-            ->with('test_queue')
-            ->andReturn(false);
-
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Aucun handler trouvé');
+        $this->expectExceptionMessage('Aucun handler configuré pour la queue : queue_fantome');
 
-        $this->worker->consume('test_queue');
-        $this->assertTrue(true);
+        $this->worker->consume('queue_fantome');
     }
 
     public function testConsumeHandlesMessageAndAcks()
     {
+        $mapping = $this->config->getQueueMapping();
+        $queueName = array_key_first($mapping);
+        $handlerClass = $mapping[$queueName];
+
         $this->connection->shouldReceive('channel')
             ->andReturn($this->channel);
-
         $this->channel->shouldReceive('queue_declare')
             ->twice();
 
         $handler = Mockery::mock(\stdClass::class);
         $handler->shouldReceive('handle')
             ->once();
-        $this->locator->shouldReceive('has')
-            ->andReturn(true);
-        $this->locator->shouldReceive('get')
+
+        $this->container->shouldReceive('get')
+            ->with($handlerClass)
+            ->once()
             ->andReturn($handler);
 
         $message = Mockery::mock(AMQPMessage::class);
@@ -77,7 +85,7 @@ class RabbitMqWorkerTest extends TestCase
         $this->channel->shouldReceive('basic_consume')
             ->once()
             ->with(
-                'test_queue',
+                $queueName,
                 Mockery::any(),
                 Mockery::any(),
                 Mockery::any(),
@@ -94,7 +102,7 @@ class RabbitMqWorkerTest extends TestCase
         $this->channel->shouldReceive('wait')
             ->once();
 
-        $this->worker->consume('test_queue');
+        $this->worker->consume($queueName);
         $this->assertTrue(true);
     }
 
@@ -108,9 +116,9 @@ class RabbitMqWorkerTest extends TestCase
         $handler->shouldReceive('handle')
             ->andThrow(new \Exception('Erreur fatale'));
 
-        $this->locator->shouldReceive('has')
+        $this->container->shouldReceive('has')
             ->andReturn(true);
-        $this->locator->shouldReceive('get')
+        $this->container->shouldReceive('get')
             ->andReturn($handler);
 
         $message = Mockery::mock(AMQPMessage::class);

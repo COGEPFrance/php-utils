@@ -2,6 +2,7 @@
 
 namespace Cogep\PhpUtils\Inputs\Rabbitmq;
 
+use Cogep\PhpUtils\Config\Settings;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Message\AMQPMessage;
@@ -11,12 +12,21 @@ use Psr\Log\LoggerInterface;
 
 class RabbitMqWorker
 {
+    private string $dlq_queue;
+
+    /**
+     * @var array<string,class-string>
+     */
+    private array $queue_mapping;
+
     public function __construct(
         private readonly AMQPStreamConnection $connection,
         private readonly LoggerInterface $logger,
-        private readonly ContainerInterface $handlerLocator,
-        private readonly string $dlq_queue,
+        private readonly ContainerInterface $container,
+        private readonly Settings $settings,
     ) {
+        $this->dlq_queue = $this->settings->rabbitQueueDlq;
+        $this->queue_mapping = $this->settings->getQueueMapping();
     }
 
     public function consume(string $queue): void
@@ -25,10 +35,11 @@ class RabbitMqWorker
 
         $this->declareQueues($channel, $queue, $this->dlq_queue);
 
-        if (! $this->handlerLocator->has($queue)) {
-            throw new \RuntimeException("Aucun handler trouvé pour la queue : {$queue}");
+        if (! isset($this->queue_mapping[$queue])) {
+            throw new \RuntimeException("Aucun handler configuré pour la queue : {$queue}");
         }
-        $handler = $this->handlerLocator->get($queue);
+        $handlerClass = $this->queue_mapping[$queue];
+        $handler = $this->container->get($handlerClass);
 
         $callback = function (AMQPMessage $msg) use ($handler) {
             try {
@@ -41,7 +52,6 @@ class RabbitMqWorker
                 $this->logger->info('Message reçu', ['message', $msg]);
                 $handler->handle($body, $msg);
                 $msg->ack();
-
             } catch (\Exception $e) {
                 $this->logger->error('Erreur de traitement: ' . $e->getMessage());
                 $this->logger->info('Envoi du message vers la DLQ: ', [

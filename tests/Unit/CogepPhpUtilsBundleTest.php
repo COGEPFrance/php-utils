@@ -69,8 +69,6 @@ class CogepPhpUtilsBundleTest extends MockeryTestCase
         $this->assertTrue($container->hasDefinition(AMQPStreamConnection::class));
         $this->assertTrue($container->hasDefinition(RabbitMqWorker::class));
 
-        $this->assertTrue($container->hasDefinition('rabbitmq.handler_locator'));
-
         $reflection = new \ReflectionClass($container);
         $property = $reflection->getProperty('autoconfiguredAttributes');
         $attributes = $property->getValue($container);
