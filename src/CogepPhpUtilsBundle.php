@@ -4,9 +4,8 @@ namespace Cogep\PhpUtils;
 
 use Cogep\PhpUtils\Command\BusCommand;
 use Cogep\PhpUtils\Command\CommandRegistry;
+use Cogep\PhpUtils\Config\Settings;
 use Cogep\PhpUtils\DependencyInjection\Compiler\BusCommandGeneratorPass;
-use Cogep\PhpUtils\Inputs\Http\BusCommandRouteLoader;
-use Cogep\PhpUtils\Inputs\Rabbitmq\QueueHandlers\Commands\RabbitMqCommandQueueHandler;
 use Cogep\PhpUtils\Inputs\Rabbitmq\RabbitMqConsumerCommand;
 use Cogep\PhpUtils\Inputs\Rabbitmq\RabbitMqWorker;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
@@ -49,36 +48,31 @@ class CogepPhpUtilsBundle extends AbstractBundle
                 __DIR__ . '/Tests',
                 __DIR__ . '/CogepPhpUtilsBundle.php',
                 __DIR__ . '/Inputs/Cli/ConsoleBusCommand.php',
+                __DIR__ . '/Command/CommandRegistry.php',
+                __DIR__ . '/Config/Settings.php',
             ]);
 
-        $queuesConfig = [
-            'queue' => $_ENV['COMMAND_QUEUE'] ?? 'default_queue',
-            'handler' => RabbitMqCommandQueueHandler::class,
-        ];
+        $settings = Settings::fromEnv();
+        $services->set(Settings::class, Settings::class)
+            ->factory([Settings::class, 'fromEnv']);
 
-        $locatorMapping = [
-            $queuesConfig['queue'] => service($queuesConfig['handler']),
-        ];
+        $mapping = array_map(function ($handlerClass) {
+            return service($handlerClass);
+        }, $settings->getQueueMapping());
 
         $services->set('rabbitmq.handler_locator', ServiceLocator::class)
-            ->args([$locatorMapping])
+            ->args([$mapping])
             ->tag('container.service_locator');
 
         $services->set(AMQPStreamConnection::class)
-            ->arg('$host', '%env(RABBITMQ_CONNECTION)%')
-            ->arg('$port', '%env(int:RABBITMQ_PORT)%')
-            ->arg('$user', '%env(RABBITMQ_USER)%')
-            ->arg('$password', '%env(RABBITMQ_PASSWORD)%');
+            ->args([$settings->rabbitHost, $settings->rabbitPort, $settings->rabbitUser, $settings->rabbitPass]);
 
         $services->set(RabbitMqWorker::class)
-            ->arg('$dlq_queue', '%env(RABBITMQ_DLQ_QUEUE)%')
+            ->arg('$dlq_queue', $settings->rabbitQueueDlq)
             ->arg('$handlerLocator', service('rabbitmq.handler_locator'));
 
         $services->set(RabbitMqConsumerCommand::class)
-            ->arg('$queues', array_keys($locatorMapping));
-
-        //        $services->set(BusCommandRouteLoader::class)
-        //        ->tag('routing.loader');
+            ->arg('$queues', array_keys($mapping));
     }
 
     public function build(ContainerBuilder $container): void

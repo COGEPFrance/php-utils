@@ -10,6 +10,10 @@ use Psr\Log\LoggerInterface;
 
 class CsvPersisterTest extends TestCase
 {
+    private string $tempDir;
+
+    private CsvPersister $persister;
+
     protected function setUp(): void
     {
         $this->tempDir = sys_get_temp_dir() . '/csv_test_' . uniqid();

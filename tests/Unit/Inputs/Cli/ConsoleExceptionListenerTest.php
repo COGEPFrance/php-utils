@@ -1,6 +1,6 @@
 <?php
 
-namespace Inputs\Cli;
+namespace Cogep\PhpUtils\Tests\Unit\Inputs\Cli;
 
 use Cogep\PhpUtils\Enums\ErrorCodeEnum;
 use Cogep\PhpUtils\Exceptions\DomainException;
@@ -16,6 +16,10 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class ConsoleExceptionListenerTest extends TestCase
 {
+    private $serializer;
+
+    private $listener;
+
     protected function setUp(): void
     {
         $this->serializer = Mockery::mock(SerializerInterface::class);

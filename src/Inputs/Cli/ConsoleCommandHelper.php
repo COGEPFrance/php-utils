@@ -66,11 +66,20 @@ class ConsoleCommandHelper
     {
         $io = new SymfonyStyle($input, $output);
         $reflection = new ReflectionClass($dtoClass);
+
+        $optionNames = [];
+
         $params = $reflection->getConstructor()?->getParameters() ?? [];
-
         foreach ($params as $param) {
-            $name = $param->getName();
+            $optionNames[] = $param->getName();
+        }
 
+        $properties = $reflection->getProperties(\ReflectionProperty::IS_PUBLIC);
+        foreach ($properties as $property) {
+            $optionNames[] = $property->getName();
+        }
+
+        foreach (array_unique($optionNames) as $name) {
             if (! $input->getOption($name)) {
                 $value = $io->ask(sprintf('Valeur pour <info>%s</info> ?', $name));
                 $input->setOption($name, $value);
@@ -95,7 +104,8 @@ class ConsoleCommandHelper
             if ($command->getDefinition()->hasOption($property->getName())) {
                 continue;
             }
-            $this->addOptionFromReflection($command, $property->getName(), true);
+            $isOptional = $property->hasDefaultValue() || $property->getType()?->allowsNull();
+            $this->addOptionFromReflection($command, $property->getName(), $isOptional);
         }
     }
 

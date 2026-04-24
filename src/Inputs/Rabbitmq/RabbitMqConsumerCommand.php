@@ -42,8 +42,18 @@ class RabbitMqConsumerCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $output->writeln('Démarrage du worker RabbitMQ...');
-        $this->rabbitMqWorker->consume($input->getArgument('queue_name'));
+        $queueName = $input->getArgument('queue_name');
+
+        if (! in_array($queueName, $this->queues, true)) {
+            $io = new SymfonyStyle($input, $output);
+            $io->error(sprintf('La queue "%s" n\'est pas gérée par ce worker.', $queueName));
+            return Command::FAILURE;
+        }
+
+        $output->writeln(sprintf('Démarrage du worker sur la queue <info>%s</info>...', $queueName));
+
+        $this->rabbitMqWorker->consume($queueName);
+
         return Command::SUCCESS;
     }
 }

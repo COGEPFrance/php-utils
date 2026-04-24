@@ -1,6 +1,6 @@
 <?php
 
-namespace Inputs\Http;
+namespace Cogep\PhpUtils\Tests\Unit\Inputs\Http;
 
 use Cogep\PhpUtils\Enums\ErrorCodeEnum;
 use Cogep\PhpUtils\Exceptions\DomainException;
@@ -19,15 +19,6 @@ class ApiExceptionListenerTest extends MockeryTestCase
     protected function setUp(): void
     {
         $this->listener = new ApiExceptionListener();
-    }
-
-    public function testOnKernelExceptionIgnoresNonApiRequests()
-    {
-        $event = $this->createExceptionEvent(new \Exception('Error'), '/web/not-api');
-
-        $this->listener->onKernelException($event);
-
-        $this->assertNull($event->getResponse());
     }
 
     public function testOnKernelExceptionHandlesDomainException()

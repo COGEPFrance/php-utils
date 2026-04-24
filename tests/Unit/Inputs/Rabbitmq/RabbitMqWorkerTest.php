@@ -1,6 +1,6 @@
 <?php
 
-namespace Inputs\Rabbitmq;
+namespace Cogep\PhpUtils\Tests\Unit\Inputs\Rabbitmq;
 
 use Cogep\PhpUtils\Inputs\Rabbitmq\RabbitMqWorker;
 use Mockery;

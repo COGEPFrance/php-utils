@@ -1,6 +1,6 @@
 <?php
 
-namespace Inputs\Rabbitmq;
+namespace Cogep\PhpUtils\Tests\Unit\Inputs\Rabbitmq;
 
 use Cogep\PhpUtils\Inputs\Rabbitmq\RabbitMqConsumerCommand;
 use Cogep\PhpUtils\Inputs\Rabbitmq\RabbitMqWorker;
@@ -32,8 +32,8 @@ class RabbitMqConsumerCommandTest extends TestCase
         $commandTester->execute([
             'queue_name' => 'queue_1',
         ]);
-
-        $this->assertStringContainsString('Démarrage du worker RabbitMQ...', $commandTester->getDisplay());
+        $output = $commandTester->getDisplay();
+        $this->assertStringContainsString('Démarrage du worker sur la queue queue_1', $output);
         $this->assertEquals(Command::SUCCESS, $commandTester->getStatusCode());
     }
 
@@ -52,7 +52,7 @@ class RabbitMqConsumerCommandTest extends TestCase
         ]);
         $output = $commandTester->getDisplay();
         $this->assertStringContainsString('Quelle queue voulez-vous consommer ?', $output);
-        $this->assertStringContainsString('Démarrage du worker RabbitMQ...', $output);
+        $this->assertStringContainsString('Démarrage du worker sur la queue queue_2', $output);
         $this->assertEquals(Command::SUCCESS, $commandTester->getStatusCode());
     }
 }
