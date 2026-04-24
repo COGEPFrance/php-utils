@@ -12,6 +12,8 @@ use Symfony\Component\Routing\RouteCollection;
 #[AutoconfigureTag('routing.loader')]
 class BusCommandRouteLoader extends Loader
 {
+    public const string BUS_COMMAND_API = 'bus_commands_api';
+
     /**
      * @param iterable<object> $commands
      */
@@ -64,6 +66,6 @@ class BusCommandRouteLoader extends Loader
 
     public function supports(mixed $resource, ?string $type = null): bool
     {
-        return $type === 'bus_commands_api';
+        return $type === self::BUS_COMMAND_API;
     }
 }
