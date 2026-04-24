@@ -27,15 +27,15 @@ readonly class Settings
     public static function fromEnv(): static
     {
         return new static(
-            appName: $_ENV['APP_NAME'],
-            appVersion: $_ENV['APP_VERSION'],
-            appEnv: $_ENV['APP_ENV'],
-            rabbitHost: $_ENV['RABBITMQ_HOST'],
-            rabbitPort: (int) ($_ENV['RABBITMQ_PORT']),
-            rabbitUser: $_ENV['RABBITMQ_USER'],
-            rabbitPass: $_ENV['RABBITMQ_PASSWORD'],
-            rabbitQueueCmd: $_ENV['RABBITMQ_QUEUE_COMMANDS'],
-            rabbitQueueDlq: $_ENV['RABBITMQ_QUEUE_DLQ'],
+            appName: self::getRequiredEnv('APP_NAME'),
+            appVersion: self::getRequiredEnv('APP_VERSION'),
+            appEnv: self::getRequiredEnv('APP_ENV'),
+            rabbitHost: self::getRequiredEnv('RABBITMQ_HOST'),
+            rabbitPort: (int) self::getRequiredEnv('RABBITMQ_PORT'),
+            rabbitUser: self::getRequiredEnv('RABBITMQ_USER'),
+            rabbitPass: self::getRequiredEnv('RABBITMQ_PASSWORD'),
+            rabbitQueueCmd: self::getRequiredEnv('RABBITMQ_QUEUE_COMMANDS'),
+            rabbitQueueDlq: self::getRequiredEnv('RABBITMQ_QUEUE_DLQ'),
             appPort: (int) ($_ENV['APP_PORT'] ?? 8000),
             rabbitPrefetch: (int) ($_ENV['RABBITMQ_PREFETCH_COUNT'] ?? 1),
         );
