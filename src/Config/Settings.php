@@ -42,7 +42,7 @@ readonly class Settings
     }
 
     /**
-     * @return array<string, string>
+     * @return array<string, class-string>
      */
     public function getQueueMapping(): array
     {

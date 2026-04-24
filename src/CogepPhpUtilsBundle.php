@@ -6,6 +6,7 @@ use Cogep\PhpUtils\Command\BusCommand;
 use Cogep\PhpUtils\Command\CommandRegistry;
 use Cogep\PhpUtils\Config\Settings;
 use Cogep\PhpUtils\DependencyInjection\Compiler\BusCommandGeneratorPass;
+use Cogep\PhpUtils\Inputs\Rabbitmq\QueueHandlers\RabbitMqQueueHandlerInterface;
 use Cogep\PhpUtils\Inputs\Rabbitmq\RabbitMqWorker;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use Symfony\Component\DependencyInjection\ChildDefinition;
@@ -35,6 +36,10 @@ class CogepPhpUtilsBundle extends AbstractBundle
                 $definition->setPublic(true);
             }
         );
+
+        $builder->registerForAutoconfiguration(RabbitMqQueueHandlerInterface::class)
+            ->addTag('rabbitmq.handler')
+            ->setPublic(true);
 
         $services->set(CommandRegistry::class)
             ->arg('$commands', tagged_iterator('bus.command'))
