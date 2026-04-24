@@ -10,6 +10,10 @@ use Psr\Log\LoggerInterface;
 
 class JsonPersisterTest extends TestCase
 {
+    private string $tempDir;
+
+    private JsonPersister $persister;
+
     protected function setUp(): void
     {
         $this->tempDir = sys_get_temp_dir() . '/json_test_' . uniqid();
