@@ -50,4 +50,15 @@ readonly class Settings
             $this->rabbitQueueCmd => RabbitMqCommandQueueHandler::class,
         ];
     }
+
+    protected static function getRequiredEnv(string $key): string
+    {
+        $value = $_ENV[$key] ?? getenv($key);
+
+        if (empty($value)) {
+            throw new \RuntimeException(sprintf('CRITICAL: Environment variable "%s" is missing or empty.', $key));
+        }
+
+        return (string) $value;
+    }
 }
