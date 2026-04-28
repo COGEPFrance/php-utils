@@ -5,15 +5,11 @@ namespace Cogep\PhpUtils\InMemory\Csv;
 use Cogep\PhpUtils\InMemory\NoDatasToSaveException;
 use Cogep\PhpUtils\InMemory\PersisterResultEntity;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use RuntimeException;
 
 class CsvPersister
 {
-    public const string DESTINATION_DIR = 'artefacts';
-
     public function __construct(
-        #[Autowire('%kernel.project_dir%')]
-        private readonly string $projectDir,
         private readonly LoggerInterface $logger,
     ) {
     }
@@ -21,9 +17,9 @@ class CsvPersister
     /**
      * @param iterable<int|string, mixed> $datas
      */
-    public function save(string $filename, iterable $datas, int $warmupLimit = 100): PersisterResultEntity
+    public function save(string $path, iterable $datas, int $warmupLimit = 100): PersisterResultEntity
     {
-        $handler = $this->openFile(basename($filename));
+        $handler = $this->openFile($path);
 
         $count = 0;
         /** @var array<string> $headers */
@@ -82,12 +78,12 @@ class CsvPersister
         fclose($handler);
 
         $this->logger->info('Fichier CSV généré en streaming direct', [
-            'filename' => $filename,
+            'filepath' => $path,
             'count' => $count,
             'columns' => $headers,
         ]);
 
-        return new PersisterResultEntity($filename, $count);
+        return new PersisterResultEntity($path, $count);
     }
 
     /**
@@ -158,20 +154,19 @@ class CsvPersister
     /**
      * @return resource
      */
-    private function openFile(string $filename)
+    private function openFile(string $filepath)
     {
-        $filePath = sprintf('%s/%s/%s', $this->projectDir, self::DESTINATION_DIR, $filename);
-        $directory = dirname($filePath);
+        $directory = dirname($filepath);
 
         if (! is_dir($directory) && ! mkdir($directory, 0755, true) && ! is_dir($directory)) {
-            throw new \RuntimeException(sprintf("Le répertoire %s n'a pas pu être créé", $directory));
+            throw new RuntimeException(sprintf("Le répertoire %s n'a pas pu être créé", $directory));
         }
 
-        if (! $handler = fopen($filePath, 'w')) {
-            throw new \RuntimeException("Impossible d'ouvrir le fichier : {$filePath}");
+        if (! $handler = fopen($filepath, 'w')) {
+            throw new \RuntimeException("Impossible d'ouvrir le fichier : {$filepath}");
         }
 
-        $this->logger->info("Ouverture du fichier d'export CSV", [$filePath]);
+        $this->logger->info("Ouverture du fichier d'export CSV", [$filepath]);
 
         return $handler;
     }
