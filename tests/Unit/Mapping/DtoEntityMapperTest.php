@@ -46,4 +46,30 @@ class DtoEntityMapperTest extends TestCase
         $this->assertInstanceOf(DummyDynamicEntity::class, $entity);
         $this->assertEquals('keep_me', $entity->name);
     }
+
+    public function testMapperDoesNotOverwriteExistingProperties(): void
+    {
+        $entity = new DummyDynamicEntity();
+        $entity->name = 'valeur_existante';
+
+        $dto = new DummyDynamicDTO();
+        $dto->name = 'nouvelle_valeur';
+
+        $this->mapper->dtoToEntity($dto, $entity);
+
+        $this->assertEquals('valeur_existante', $entity->name);
+    }
+
+    public function testMapperSkipsNullValuesFromDto(): void
+    {
+        $entity = new DummyDynamicEntity();
+        $entity->age = '30';
+
+        $dto = new DummyDynamicDTO();
+        $dto->age = null;
+
+        $this->mapper->dtoToEntity($dto, $entity);
+
+        $this->assertEquals('30', $entity->age);
+    }
 }

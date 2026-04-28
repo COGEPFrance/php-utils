@@ -7,6 +7,12 @@ use PHPUnit\Framework\TestCase;
 
 class CsvFetcherTest extends TestCase
 {
+    private string $tempDir;
+
+    private string $csvPath;
+
+    private CsvFetcher $fetcher;
+
     protected function setUp(): void
     {
         $this->tempDir = sys_get_temp_dir() . '/fetcher_test_' . uniqid();

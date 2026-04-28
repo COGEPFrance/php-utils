@@ -10,4 +10,6 @@ class DummyDynamicDTO extends DynamicPropertyClass implements DTOInterface
     public int $id;
 
     public string $name;
+
+    public string|null $age;
 }
