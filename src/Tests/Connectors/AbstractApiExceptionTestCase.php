@@ -25,7 +25,6 @@ abstract class AbstractApiExceptionTestCase extends TestCase
 
         $this->assertEquals(400, $exception->getCode());
         $this->assertStringContainsString($this->getExpectedErrorMessage(), $exception->getMessage());
-
     }
 
     public function testConstructorHandlesInvalidJsonGracefully(): void
