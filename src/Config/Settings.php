@@ -36,8 +36,8 @@ readonly class Settings
             rabbitPass: self::getRequiredEnv('RABBITMQ_PASSWORD'),
             rabbitQueueCmd: self::getRequiredEnv('RABBITMQ_QUEUE_COMMANDS'),
             rabbitQueueDlq: self::getRequiredEnv('RABBITMQ_QUEUE_DLQ'),
-            appPort: (int) ($_ENV['APP_PORT'] ?? 8000),
-            rabbitPrefetch: (int) ($_ENV['RABBITMQ_PREFETCH_COUNT'] ?? 1),
+            appPort: (int) self::getDefaultEnv('APP_PORT', '8000'),
+            rabbitPrefetch: (int) self::getDefaultEnv('RABBITMQ_PREFETCH_COUNT', '1'),
         );
     }
 
@@ -49,6 +49,11 @@ readonly class Settings
         return [
             $this->rabbitQueueCmd => RabbitMqCommandQueueHandler::class,
         ];
+    }
+
+    protected static function getDefaultEnv(string $key, string $default): string
+    {
+        return $_ENV[$key] ?? (getenv($key) !== false ? getenv($key) : $default);
     }
 
     protected static function getRequiredEnv(string $key): string
