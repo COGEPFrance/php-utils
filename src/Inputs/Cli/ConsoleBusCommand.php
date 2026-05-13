@@ -3,6 +3,7 @@
 namespace Cogep\PhpUtils\Inputs\Cli;
 
 use Cogep\PhpUtils\Classes\DTOInterface;
+use Cogep\PhpUtils\Classes\Responses\ResponseStatusEnum;
 use Cogep\PhpUtils\Classes\Responses\StandardResponseDto;
 use Cogep\PhpUtils\Helpers\EntityValidator;
 use Psr\Log\LoggerInterface;
@@ -44,14 +45,14 @@ class ConsoleBusCommand extends Command
     protected function initialize(InputInterface $input, OutputInterface $output): void
     {
         if ($input->hasParameterOption('--json')) {
-            $this->helper->setupJsonLogging($this, $input);
+            $this->helper->setupConsoleLogging();
         }
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if ($input->getOption('json')) {
-            $this->helper->setupJsonLogging($this, $input);
+            $this->helper->setupConsoleLogging();
         }
 
         if (! $input->getOption('json')) {
@@ -73,7 +74,7 @@ class ConsoleBusCommand extends Command
 
     protected function render(OutputInterface $output, StandardResponseDto $dto, bool $isJson): int
     {
-        $isSuccess = $dto->status === 'success';
+        $isSuccess = $dto->status === ResponseStatusEnum::SUCCESS;
         $exitCode = $isSuccess ? Command::SUCCESS : Command::FAILURE;
 
         $json = $this->serializer->serialize($dto, 'json', [

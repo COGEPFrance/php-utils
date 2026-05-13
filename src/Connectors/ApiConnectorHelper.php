@@ -108,7 +108,7 @@ class ApiConnectorHelper
         foreach ($batchItems as $item) {
             try {
                 $response = $requestCallback($client, $item);
-                $responsesMap->attach($response, $item);
+                $responsesMap->offsetSet($response, $item);
             } catch (\Throwable $e) {
                 $this->logger->error("Échec de préparation de requête: {$e->getMessage()}");
                 $failedItems[] = $item;
@@ -143,7 +143,7 @@ class ApiConnectorHelper
                     }
 
                     if ($chunk->isLast()) {
-                        $processedResponses->attach($response);
+                        $processedResponses->offsetSet($response);
                         yield from $responseCallback($response);
                     }
                 } catch (\Throwable $e) {
@@ -207,7 +207,7 @@ class ApiConnectorHelper
         string $msg
     ): void {
         foreach ($responses as $response) {
-            if (! $processed->contains($response)) {
+            if (! $processed->offsetExists($response)) {
                 $this->handleFailure($response, $map, $failedItems, "Crash itérateur: {$msg}");
             }
         }

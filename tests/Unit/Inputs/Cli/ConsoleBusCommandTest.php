@@ -54,7 +54,7 @@ class ConsoleBusCommandTest extends MockeryTestCase
 
         $this->helper->shouldReceive('addOptionsFromDto')
             ->once();
-        $this->helper->shouldReceive('setupJsonLogging')
+        $this->helper->shouldReceive('setupConsoleLogging')
             ->once();
         $this->denormalizer->shouldReceive('denormalize')
             ->andReturn($mockDto);

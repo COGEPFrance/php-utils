@@ -7,6 +7,7 @@ use Cogep\PhpUtils\Tests\Classes\DummyDynamicDTO;
 use Cogep\PhpUtils\Tests\Fixtures\DummyExposedCommand;
 use Cogep\PhpUtils\Tests\Fixtures\DummyHiddenCommand;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 class CommandRegistryTest extends TestCase
 {
@@ -14,7 +15,7 @@ class CommandRegistryTest extends TestCase
     {
         $commands = [new DummyExposedCommand(), new DummyHiddenCommand(), new DummyDynamicDTO()];
 
-        $registry = new CommandRegistry($commands);
+        $registry = new CommandRegistry($commands, $this->createMock(LoggerInterface::class));
 
         $this->assertEquals(DummyExposedCommand::class, $registry->getDtoClass('test-command'));
         $this->assertEquals(DummyHiddenCommand::class, $registry->getDtoClass('secret-command'));
@@ -22,7 +23,7 @@ class CommandRegistryTest extends TestCase
 
     public function testGetDtoClassThrowsExceptionIfNotFound(): void
     {
-        $registry = new CommandRegistry([]);
+        $registry = new CommandRegistry([], $this->createMock(LoggerInterface::class));
 
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Commande [unknown.cmd] inconnue.');
@@ -32,7 +33,7 @@ class CommandRegistryTest extends TestCase
 
     public function testAddCommandWithNonExistentClassDoesNothing(): void
     {
-        $registry = new CommandRegistry([]);
+        $registry = new CommandRegistry([], $this->createMock(LoggerInterface::class));
 
         $registry->addCommand('NonExistent\\Class');
 
@@ -42,7 +43,7 @@ class CommandRegistryTest extends TestCase
 
     public function testAddCommandExplicitly(): void
     {
-        $registry = new CommandRegistry([]);
+        $registry = new CommandRegistry([], $this->createMock(LoggerInterface::class));
 
         $registry->addCommand(DummyExposedCommand::class);
 

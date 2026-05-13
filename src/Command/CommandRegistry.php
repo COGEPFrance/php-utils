@@ -2,6 +2,7 @@
 
 namespace Cogep\PhpUtils\Command;
 
+use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 
 class CommandRegistry
@@ -14,8 +15,11 @@ class CommandRegistry
     /**
      * @param iterable<object> $commands
      */
-    public function __construct(#[AutowireIterator('bus.command')] iterable $commands)
-    {
+    public function __construct(
+        #[AutowireIterator('bus.command')]
+        iterable $commands,
+        private readonly LoggerInterface $logger
+    ) {
         foreach ($commands as $command) {
             $this->addCommand($command::class);
         }
@@ -24,6 +28,7 @@ class CommandRegistry
     public function addCommand(string $className): void
     {
         if (! class_exists($className)) {
+            $this->logger->warning("La classe {$className} n'existe pas.");
             return;
         }
 

@@ -50,13 +50,13 @@ class BusCommandRouteLoader extends Loader
                     [
                         '_controller' => GenericMessageController::class,
                         '_message_class' => $reflection->getName(),
-                        '_method' => $config->method,
+                        '_method' => $config->method->value,
                     ],
                     [],
                     [],
                     '',
                     [],
-                    [$config->method]
+                    [$config->method->value]
                 )
             );
         }

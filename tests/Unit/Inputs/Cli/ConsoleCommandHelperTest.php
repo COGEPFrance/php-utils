@@ -50,18 +50,15 @@ class ConsoleCommandHelperTest extends TestCase
 
     public function testSetupJsonLogging(): void
     {
-        $command = new Command('test:log');
-        $input = $this->createMock(InputInterface::class);
-
         $logDir = sys_get_temp_dir() . '/php_utils_tests';
         $this->parameterBag->method('get')
             ->with('kernel.logs_dir')
             ->willReturn($logDir);
 
         $monolog = new Logger('test');
-        $helper = new ConsoleCommandHelper($this->serializer, $monolog, $this->parameterBag);
+        $helper = new ConsoleCommandHelper($this->serializer, $monolog);
 
-        $helper->setupJsonLogging($command, $input);
+        $helper->setupConsoleLogging();
 
         $handlers = $monolog->getHandlers();
         $this->assertCount(1, $handlers);

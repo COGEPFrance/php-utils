@@ -13,7 +13,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class ConsoleCommandHelper
@@ -21,42 +20,18 @@ class ConsoleCommandHelper
     public function __construct(
         protected readonly SerializerInterface $serializer,
         protected LoggerInterface $logger,
-        protected readonly ParameterBagInterface $parameterBag,
     ) {
     }
 
-    public function setupJsonLogging(Command $command, InputInterface $input): void
+    public function setupConsoleLogging(): void
     {
-        if (! $this->logger instanceof Logger) {
+        if (! ($this->logger instanceof Logger)) {
             return;
         }
 
-        foreach ($this->logger->getHandlers() as $handler) {
-            $this->logger->popHandler();
-        }
-
-        $logDir = $this->parameterBag->get('kernel.logs_dir');
-
-        if (! is_string($logDir)) {
-            throw new \RuntimeException('Le paramètre kernel.logs_dir doit être une chaîne de caractères.');
-        }
-
-        if (! is_dir($logDir)) {
-            mkdir($logDir, 0777, true);
-        }
-
-        $logPath = sprintf(
-            '%s/%s_%s.log',
-            $logDir,
-            str_replace(':', '_', (string) $command->getName()),
-            date('Y-m-d_H-i-s')
-        );
-
-        $jsonHandler = new StreamHandler($logPath);
-        $jsonHandler->setFormatter(new LoggerFormator());
-        $this->logger->pushHandler($jsonHandler);
-
-        $this->logger->debug('écriture des logs dans un fichier.');
+        $consoleHandler = new StreamHandler('php://stdout');
+        $consoleHandler->setFormatter(new LoggerFormator());
+        $this->logger->pushHandler($consoleHandler);
     }
 
     /**

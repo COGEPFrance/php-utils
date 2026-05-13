@@ -3,6 +3,7 @@
 namespace Cogep\PhpUtils\Command;
 
 use Attribute;
+use Cogep\PhpUtils\Classes\Utils\HttpActionEnum;
 
 #[Attribute(Attribute::TARGET_CLASS)]
 class BusCommand
@@ -10,7 +11,7 @@ class BusCommand
     public function __construct(
         public string $name,
         public bool $exposeApi = true,
-        public string $method = 'POST'
+        public HttpActionEnum $method = HttpActionEnum::POST,
     ) {
     }
 }

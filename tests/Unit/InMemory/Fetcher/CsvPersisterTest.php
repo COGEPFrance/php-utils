@@ -1,6 +1,6 @@
 <?php
 
-namespace Unit\InMemory\Fetcher;
+namespace Cogep\PhpUtils\Tests\Unit\InMemory\Fetcher;
 
 use Cogep\PhpUtils\Classes\EntityInterface;
 use Cogep\PhpUtils\InMemory\Csv\CsvPersister;
@@ -19,7 +19,7 @@ class CsvPersisterTest extends TestCase
         $this->tempDir = sys_get_temp_dir() . '/csv_test_' . uniqid();
         $logger = $this->createMock(LoggerInterface::class);
 
-        $this->persister = new CsvPersister($this->tempDir, $logger);
+        $this->persister = new CsvPersister($logger);
     }
 
     protected function tearDown(): void
@@ -41,6 +41,7 @@ class CsvPersisterTest extends TestCase
 
     public function testSaveDiscoveryWithWarmup(): void
     {
+        $csvPath = $this->tempDir . '/test.csv';
         $dossier1 = new class() implements EntityInterface {
             public int $id = 1;
 
@@ -56,12 +57,10 @@ class CsvPersisterTest extends TestCase
             public string $new_column = 'surprise';
         };
 
-        $result = $this->persister->save('test.csv', [$dossier1, $dossier2], 2);
+        $result = $this->persister->save($csvPath, [$dossier1, $dossier2], 2);
+        $this->assertFileExists($csvPath);
 
-        $filePath = $this->tempDir . '/' . $this->persister::DESTINATION_DIR . '/' . $result->resource;
-        $this->assertFileExists($filePath);
-
-        $content = file($filePath);
+        $content = file($csvPath);
 
         $headers = str_getcsv($content[0], ';', escape: '');
         $this->assertEquals(['id', 'active', 'date', 'new_column'], $headers);
