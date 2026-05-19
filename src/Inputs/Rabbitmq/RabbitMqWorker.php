@@ -53,7 +53,11 @@ class RabbitMqWorker
                 $handler->handle($body, $msg);
                 $msg->ack();
             } catch (\Exception $e) {
-                $this->logger->error('Erreur de traitement: ' . $e->getMessage());
+                $this->logger->error($e->getMessage(), [
+                        'exception' => $e,
+                        'trace' => $e->getTraceAsString(),
+                    ]);
+
                 $this->logger->info('Envoi du message vers la DLQ: ', [
                     'queue' => $this->dlq_queue,
                 ]);

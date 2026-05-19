@@ -2,11 +2,9 @@
 
 namespace Cogep\PhpUtils\Config;
 
+use Cogep\PhpUtils\FileStorage\Destinations\AzureBlob\Client\AzureBlobConfig;
 use Cogep\PhpUtils\Inputs\Rabbitmq\QueueHandlers\Commands\RabbitMqCommandQueueHandler;
 
-/**
- * @phpstan-consistent-constructor
- */
 readonly class Settings
 {
     public function __construct(
@@ -19,6 +17,9 @@ readonly class Settings
         public string $rabbitPass,
         public string $rabbitQueueCmd,
         public string $rabbitQueueDlq,
+        public ?string $azureStorageAccount,
+        public ?string $azureBlobContainer,
+        public ?string $azureBlobSasUrl,
         public int $appPort = 8000,
         public int $rabbitPrefetch = 1,
     ) {
@@ -38,6 +39,9 @@ readonly class Settings
             rabbitQueueDlq: self::getRequiredEnv('RABBITMQ_QUEUE_DLQ'),
             appPort: (int) self::getDefaultEnv('APP_PORT', '8000'),
             rabbitPrefetch: (int) self::getDefaultEnv('RABBITMQ_PREFETCH_COUNT', '1'),
+            azureStorageAccount: self::getDefaultEnv('AZURE_STORAGE_ACCOUNT', null),
+            azureBlobContainer: self::getDefaultEnv('AZURE_BLOB_CONTAINER', null),
+            azureBlobSasUrl: self::getDefaultEnv('AZURE_BLOB_SAS_URL', null),
         );
     }
 
@@ -51,7 +55,16 @@ readonly class Settings
         ];
     }
 
-    protected static function getDefaultEnv(string $key, string $default): string
+    public function getAzureBlobConfig(): AzureBlobConfig
+    {
+        return new AzureBlobConfig(
+            containerName: $this->azureBlobContainer,
+            accountUrl: $this->azureStorageAccount,
+            sasUrl: $this->azureBlobSasUrl,
+        );
+    }
+
+    protected static function getDefaultEnv(string $key, string|null $default): string
     {
         return $_ENV[$key] ?? (getenv($key) !== false ? getenv($key) : $default);
     }

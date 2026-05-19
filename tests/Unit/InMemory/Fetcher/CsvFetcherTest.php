@@ -2,7 +2,7 @@
 
 namespace Unit\InMemory\Fetcher;
 
-use Cogep\PhpUtils\InMemory\Csv\CsvFetcher;
+use Cogep\PhpUtils\FileStorage\Formats\Csv\CsvFormatter;
 use PHPUnit\Framework\TestCase;
 
 class CsvFetcherTest extends TestCase
@@ -11,18 +11,18 @@ class CsvFetcherTest extends TestCase
 
     private string $csvPath;
 
-    private CsvFetcher $fetcher;
+    private CsvFormatter $fetcher;
 
     protected function setUp(): void
     {
         $this->tempDir = sys_get_temp_dir() . '/fetcher_test_' . uniqid();
-        $this->csvPath = $this->tempDir . '/' . CsvFetcher::SOURCE_FILE;
+        $this->csvPath = $this->tempDir . '/' . CsvFormatter::SOURCE_FILE;
 
         if (! is_dir($this->csvPath)) {
             mkdir($this->csvPath, 0777, true);
         }
 
-        $this->fetcher = new CsvFetcher($this->tempDir);
+        $this->fetcher = new CsvFormatter($this->tempDir);
     }
 
     protected function tearDown(): void

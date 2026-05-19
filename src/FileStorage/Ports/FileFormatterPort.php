@@ -1,0 +1,18 @@
+<?php
+
+namespace Cogep\PhpUtils\FileStorage\Ports;
+
+use Cogep\PhpUtils\FileStorage\Enums\FileFormatEnum;
+use Cogep\PhpUtils\FileStorage\FileStorageConsts;
+use Generator;
+use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
+
+#[AutoconfigureTag(FileStorageConsts::FILE_FORMATTER)]
+interface FileFormatterPort
+{
+    public function getFileFormat(): FileFormatEnum;
+
+    public function arrayToRaw(iterable $data): Generator;
+
+    public function rawToArray(string $raw): iterable;
+}

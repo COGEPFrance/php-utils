@@ -3,8 +3,8 @@
 namespace Cogep\PhpUtils\Tests\Unit\InMemory\Fetcher;
 
 use Cogep\PhpUtils\Classes\EntityInterface;
-use Cogep\PhpUtils\InMemory\Csv\CsvPersister;
-use Cogep\PhpUtils\InMemory\NoDatasToSaveException;
+use Cogep\PhpUtils\FileStorage\Formats\Csv\CsvPersister;
+use Cogep\PhpUtils\FileStorage\NoDatasToSaveException;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
