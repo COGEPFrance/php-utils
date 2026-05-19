@@ -6,6 +6,7 @@ use Cogep\PhpUtils\Command\BusCommand;
 use Cogep\PhpUtils\Command\CommandRegistry;
 use Cogep\PhpUtils\Config\Settings;
 use Cogep\PhpUtils\DependencyInjection\Compiler\BusCommandGeneratorPass;
+use Cogep\PhpUtils\FileStorage\Destinations\AzureBlob\Client\AzureBlobConfig;
 use Cogep\PhpUtils\Inputs\Rabbitmq\QueueHandlers\RabbitMqQueueHandlerInterface;
 use Cogep\PhpUtils\Inputs\Rabbitmq\RabbitMqWorker;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
@@ -65,6 +66,9 @@ class CogepPhpUtilsBundle extends AbstractBundle
             ->autowire()
             ->arg('$container', service('service_container'))
             ->public();
+
+        $services->set(AzureBlobConfig::class)
+            ->factory([service(Settings::class), 'getAzureBlobConfig']);
     }
 
     public static function createConnection(Settings $settings): AMQPStreamConnection

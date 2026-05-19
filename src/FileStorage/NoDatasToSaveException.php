@@ -1,6 +1,6 @@
 <?php
 
-namespace Cogep\PhpUtils\InMemory;
+namespace Cogep\PhpUtils\FileStorage;
 
 class NoDatasToSaveException extends \Exception
 {

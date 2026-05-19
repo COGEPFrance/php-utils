@@ -5,6 +5,7 @@ namespace Cogep\PhpUtils\Inputs\Http;
 use Cogep\PhpUtils\Classes\Responses\StandardResponseDto;
 use Cogep\PhpUtils\Enums\ErrorCodeEnum;
 use Cogep\PhpUtils\Exceptions\DomainException;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
@@ -23,6 +24,11 @@ class ApiExceptionListener
         ErrorCodeEnum::FORBIDDEN->value => 403,
     ];
 
+    public function __construct(
+        private LoggerInterface $logger
+    ) {
+    }
+
     public function onKernelException(ExceptionEvent $event): void
     {
         $exception = $event->getThrowable();
@@ -39,6 +45,13 @@ class ApiExceptionListener
             default => [ErrorCodeEnum::INTERNAL_ERROR, 500],
         };
 
+        $this->logger->error(
+            $exception->getMessage(),
+            [
+                'exception' => $exception,
+                'trace' => $exception->getTraceAsString(),
+            ]
+        );
         $responseDto = StandardResponseDto::error(code: $errorCode, message: $exception->getMessage());
 
         $response = new JsonResponse($responseDto, $httpCode, [], false);

@@ -37,7 +37,10 @@ class LoggerFormator implements FormatterInterface
         );
     }
 
-    public function formatBatch(array $records)
+    /**
+     * @return array
+     */
+    public function formatBatch(array $records): mixed
     {
         return array_map(fn ($record) => $this->format($record), $records);
     }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Cogep\PhpUtils\InMemory;
+namespace Cogep\PhpUtils\FileStorage;
 
 use Cogep\PhpUtils\Classes\EntityInterface;
 
