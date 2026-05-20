@@ -6,12 +6,12 @@ use Cogep\PhpUtils\DependencyInjection\Compiler\BusCommandGeneratorPass;
 use Cogep\PhpUtils\Helpers\EntityValidator;
 use Cogep\PhpUtils\Inputs\Cli\ConsoleBusCommand;
 use Cogep\PhpUtils\Inputs\Cli\ConsoleCommandHelper;
+use Cogep\PhpUtils\Tests\BaseMockeryTestCase;
 use Cogep\PhpUtils\Tests\Fixtures\DummyExposedCommand;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
-class BusCommandGeneratorPassTest extends MockeryTestCase
+class BusCommandGeneratorPassTest extends BaseMockeryTestCase
 {
     public function testProcessGeneratesDefinitions(): void
     {

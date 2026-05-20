@@ -3,10 +3,10 @@
 namespace Cogep\PhpUtils\Tests\Unit\Inputs\Cli;
 
 use Cogep\PhpUtils\Inputs\Cli\ConsoleCommandHelper;
+use Cogep\PhpUtils\Tests\BaseMockeryTestCase;
 use Cogep\PhpUtils\Tests\Classes\DummyDynamicDTO;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
-use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
-class ConsoleCommandHelperTest extends TestCase
+class ConsoleCommandHelperTest extends BaseMockeryTestCase
 {
     private SerializerInterface $serializer;
 

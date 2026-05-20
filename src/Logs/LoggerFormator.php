@@ -38,7 +38,7 @@ class LoggerFormator implements FormatterInterface
     }
 
     /**
-     * @return array
+     * @return array<mixed,mixed>
      */
     public function formatBatch(array $records): mixed
     {

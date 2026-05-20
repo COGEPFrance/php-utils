@@ -54,9 +54,9 @@ class RabbitMqWorker
                 $msg->ack();
             } catch (\Exception $e) {
                 $this->logger->error($e->getMessage(), [
-                        'exception' => $e,
-                        'trace' => $e->getTraceAsString(),
-                    ]);
+                    'exception' => $e,
+                    'trace' => $e->getTraceAsString(),
+                ]);
 
                 $this->logger->info('Envoi du message vers la DLQ: ', [
                     'queue' => $this->dlq_queue,

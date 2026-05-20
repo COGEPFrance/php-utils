@@ -4,14 +4,14 @@ namespace Cogep\PhpUtils\Tests\Unit\Inputs\Http;
 
 use Cogep\PhpUtils\Helpers\EntityValidator;
 use Cogep\PhpUtils\Inputs\Http\GenericMessageController;
-use PHPUnit\Framework\TestCase;
+use Cogep\PhpUtils\Tests\BaseMockeryTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Serializer\SerializerInterface;
 
-class GenericMessageControllerTest extends TestCase
+class GenericMessageControllerTest extends BaseMockeryTestCase
 {
     private $serializer;
 
@@ -23,9 +23,9 @@ class GenericMessageControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->serializer = $this->createMock(SerializerInterface::class);
-        $this->bus = $this->createMock(MessageBusInterface::class);
-        $this->validator = $this->createMock(EntityValidator::class);
+        $this->serializer = \Mockery::mock(SerializerInterface::class);
+        $this->bus = \Mockery::mock(MessageBusInterface::class);
+        $this->validator = \Mockery::mock(EntityValidator::class);
 
         $this->controller = new GenericMessageController($this->serializer, $this->bus, $this->validator);
     }
@@ -43,21 +43,24 @@ class GenericMessageControllerTest extends TestCase
             '_message_class' => $messageClass,
         ], [], [], [], $jsonContent);
 
-        $this->serializer->expects($this->once())
-            ->method('deserialize')
+        $this->serializer
+            ->shouldReceive('deserialize')
+            ->once()
             ->with($jsonContent, $messageClass, 'json')
-            ->willReturn($mockMessage);
+            ->andReturn($mockMessage);
 
-        $this->validator->expects($this->once())
-            ->method('validate')
+        $this->validator
+            ->shouldReceive('validate')
+            ->once()
             ->with($mockMessage);
 
         $envelope = new Envelope($mockMessage, [new HandledStamp($expectedResult, 'handler_name')]);
 
-        $this->bus->expects($this->once())
-            ->method('dispatch')
+        $this->bus
+            ->shouldReceive('dispatch')
+            ->once()
             ->with($mockMessage)
-            ->willReturn($envelope);
+            ->andReturn($envelope);
 
         $response = ($this->controller)($request);
 

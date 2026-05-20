@@ -10,7 +10,7 @@ use Generator;
 /**
  * @template T of EntityInterface
  */
-class JsonPersister implements FileFormatterPort
+class JsonFormatter implements FileFormatterPort
 {
     public function getFileFormat(): FileFormatEnum
     {

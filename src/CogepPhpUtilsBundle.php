@@ -13,9 +13,9 @@ use PhpAmqpLib\Connection\AMQPStreamConnection;
 use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
-use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 
 class CogepPhpUtilsBundle extends AbstractBundle
 {

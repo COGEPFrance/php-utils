@@ -10,8 +10,8 @@ use Cogep\PhpUtils\Exceptions\DomainException;
 use Cogep\PhpUtils\Helpers\EntityValidator;
 use Cogep\PhpUtils\Inputs\Rabbitmq\Exceptions\MessageIgnoredException;
 use Cogep\PhpUtils\Inputs\Rabbitmq\QueueHandlers\Commands\RabbitMqCommandQueueHandler;
+use Cogep\PhpUtils\Tests\BaseMockeryTestCase;
 use Mockery;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Message\AMQPMessage;
 use Psr\Log\LoggerInterface;
@@ -21,7 +21,7 @@ use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
-class RabbitMqCommandQueueHandlerTest extends MockeryTestCase
+class RabbitMqCommandQueueHandlerTest extends BaseMockeryTestCase
 {
     private $bus;
 

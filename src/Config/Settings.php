@@ -17,9 +17,8 @@ readonly class Settings
         public string $rabbitPass,
         public string $rabbitQueueCmd,
         public string $rabbitQueueDlq,
-        public ?string $azureStorageAccount,
-        public ?string $azureBlobContainer,
-        public ?string $azureBlobSasUrl,
+        public string $azureStorageAccount,
+        public ?string $azureBlobSasToken,
         public int $appPort = 8000,
         public int $rabbitPrefetch = 1,
     ) {
@@ -39,9 +38,8 @@ readonly class Settings
             rabbitQueueDlq: self::getRequiredEnv('RABBITMQ_QUEUE_DLQ'),
             appPort: (int) self::getDefaultEnv('APP_PORT', '8000'),
             rabbitPrefetch: (int) self::getDefaultEnv('RABBITMQ_PREFETCH_COUNT', '1'),
-            azureStorageAccount: self::getDefaultEnv('AZURE_STORAGE_ACCOUNT', null),
-            azureBlobContainer: self::getDefaultEnv('AZURE_BLOB_CONTAINER', null),
-            azureBlobSasUrl: self::getDefaultEnv('AZURE_BLOB_SAS_URL', null),
+            azureStorageAccount: self::getRequiredEnv('AZURE_STORAGE_URL'),
+            azureBlobSasToken: self::getDefaultEnv('AZURE_BLOB_SAS_TOKEN', null),
         );
     }
 
@@ -57,14 +55,10 @@ readonly class Settings
 
     public function getAzureBlobConfig(): AzureBlobConfig
     {
-        return new AzureBlobConfig(
-            containerName: $this->azureBlobContainer,
-            accountUrl: $this->azureStorageAccount,
-            sasUrl: $this->azureBlobSasUrl,
-        );
+        return new AzureBlobConfig(accountUrl: $this->azureStorageAccount, sasToken: $this->azureBlobSasToken);
     }
 
-    protected static function getDefaultEnv(string $key, string|null $default): string
+    protected static function getDefaultEnv(string $key, string|null $default): ?string
     {
         return $_ENV[$key] ?? (getenv($key) !== false ? getenv($key) : $default);
     }

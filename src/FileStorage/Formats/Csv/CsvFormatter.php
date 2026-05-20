@@ -24,7 +24,7 @@ class CsvFormatter implements FileFormatterWithWarmupLimitInterface
         fwrite($stream, $raw);
         rewind($stream);
 
-        $headers = fgetcsv($stream, 0, ';');
+        $headers = fgetcsv($stream, 0, ';', '"', '');
 
         if (! is_array($headers) || empty(array_filter($headers))) {
             fclose($stream);
@@ -35,7 +35,7 @@ class CsvFormatter implements FileFormatterWithWarmupLimitInterface
         $headerCount = count($headers);
 
         try {
-            while (($row = fgetcsv($stream, 0, ';')) !== false) {
+            while (($row = fgetcsv($stream, 0, ';', '"', '')) !== false) {
                 if (count(array_filter($row)) === 0) {
                     continue;
                 }
@@ -51,49 +51,65 @@ class CsvFormatter implements FileFormatterWithWarmupLimitInterface
     public function arrayToRaw(iterable $data, int $warmupLimit = 100): \Generator
     {
         $stream = fopen('php://temp', 'w+');
-
         $buffer = [];
         /** @var array<string> $headers */
         $headers = [];
-
         $count = 0;
         $headerWritten = false;
         try {
             foreach ($data as $entry) {
-                $dataArray = is_object($entry) ? get_object_vars($entry) : (array) $entry;
+                $dataArray = $this->toArray($entry);
                 if (! $headerWritten) {
                     $buffer[] = $dataArray;
                     $this->updateHeaders($dataArray, $headers);
-
                     if (++$count >= $warmupLimit) {
-                        $this->logger->debug('headers', [
-                            'headers' => $headers,
-                        ]);
-                        yield $this->formatCsvRow(array_combine($headers, $headers), $headers);
-                        foreach ($buffer as $buffered) {
-                            yield $this->formatCsvRow($buffered, $headers);
-                        }
+                        yield from $this->writeHeadersAndBuffer($headers, $buffer);
                         $headerWritten = true;
                         $buffer = [];
                     }
                 } else {
-                    yield $this->formatCsvRow($dataArray, $headers);
+                    yield $this->writeLine($dataArray, $headers);
                 }
             }
             if (! $headerWritten && count($buffer) > 0) {
                 $this->logger->info('warmup limit never reached, writing headers and buffered data');
-                $this->logger->debug('headers', [
-                    'headers' => $headers,
-                ]);
-
-                yield $this->formatCsvRow(array_combine($headers, $headers), $headers);
-                foreach ($buffer as $buffered) {
-                    yield $this->formatCsvRow($buffered, $headers);
-                }
+                yield from $this->writeHeadersAndBuffer($headers, $buffer);
             }
         } finally {
             fclose($stream);
         }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function toArray(mixed $entry): array
+    {
+        return is_object($entry) ? get_object_vars($entry) : (array) $entry;
+    }
+
+    /**
+     * @param array<string> $headers
+     * @param array<int, array<string, mixed>> $buffer
+     */
+    private function writeHeadersAndBuffer(array $headers, array $buffer): \Generator
+    {
+        $this->logger->debug('headers', [
+            'headers' => $headers,
+        ]);
+        yield $this->formatCsvRow(array_combine($headers, $headers), $headers);
+        foreach ($buffer as $buffered) {
+            yield $this->formatCsvRow($buffered, $headers);
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $dataArray
+     * @param array<string> $headers
+     */
+    private function writeLine(array $dataArray, array $headers): string
+    {
+        return $this->formatCsvRow($dataArray, $headers);
     }
 
     /**

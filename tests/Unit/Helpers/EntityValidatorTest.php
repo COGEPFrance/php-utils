@@ -5,12 +5,12 @@ namespace Cogep\PhpUtils\Tests\Unit\Helpers;
 use Cogep\PhpUtils\Enums\ErrorCodeEnum;
 use Cogep\PhpUtils\Exceptions\DomainException;
 use Cogep\PhpUtils\Helpers\EntityValidator;
-use PHPUnit\Framework\TestCase;
+use Cogep\PhpUtils\Tests\BaseMockeryTestCase;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class EntityValidatorTest extends TestCase
+class EntityValidatorTest extends BaseMockeryTestCase
 {
     private ValidatorInterface $validatorMock;
 
@@ -18,7 +18,7 @@ class EntityValidatorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->validatorMock = $this->createMock(ValidatorInterface::class);
+        $this->validatorMock = \Mockery::mock(ValidatorInterface::class);
         $this->entityValidator = new EntityValidator($this->validatorMock);
     }
 
@@ -27,10 +27,10 @@ class EntityValidatorTest extends TestCase
         $entity = new \stdClass();
 
         $this->validatorMock
-            ->expects($this->once())
-            ->method('validate')
+            ->shouldReceive('validate')
+            ->once()
             ->with($entity)
-            ->willReturn(new ConstraintViolationList());
+            ->andReturn(new ConstraintViolationList());
 
         $this->entityValidator->validate($entity);
     }
@@ -39,25 +39,25 @@ class EntityValidatorTest extends TestCase
     {
         $entity = new \stdClass();
 
-        $violation1 = $this->createMock(ConstraintViolation::class);
-        $violation1->method('getPropertyPath')
-            ->willReturn('email');
-        $violation1->method('getMessage')
-            ->willReturn('Invalide');
+        $violation1 = \Mockery::mock(ConstraintViolation::class);
+        $violation1->shouldReceive('getPropertyPath')
+            ->andReturn('email');
+        $violation1->shouldReceive('getMessage')
+            ->andReturn('Invalide');
 
-        $violation2 = $this->createMock(ConstraintViolation::class);
-        $violation2->method('getPropertyPath')
-            ->willReturn('age');
-        $violation2->method('getMessage')
-            ->willReturn('Trop jeune');
+        $violation2 = \Mockery::mock(ConstraintViolation::class);
+        $violation2->shouldReceive('getPropertyPath')
+            ->andReturn('age');
+        $violation2->shouldReceive('getMessage')
+            ->andReturn('Trop jeune');
 
         $violations = new ConstraintViolationList([$violation1, $violation2]);
 
         $this->validatorMock
-            ->expects($this->once())
-            ->method('validate')
+            ->shouldReceive('validate')
+            ->once()
             ->with($entity)
-            ->willReturn($violations);
+            ->andReturn($violations);
 
         try {
             $this->entityValidator->validate($entity);

@@ -1,6 +1,6 @@
 <?php
 
-namespace Unit\Connectors;
+namespace Cogep\PhpUtils\Tests\Unit\Connectors;
 
 use Cogep\PhpUtils\Connectors\ApiException;
 use Cogep\PhpUtils\Tests\Connectors\AbstractApiExceptionTestCase;

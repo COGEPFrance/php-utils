@@ -32,24 +32,8 @@ class FileStorageFactory
         iterable $fileFormatters,
         private readonly LoggerInterface $logger,
     ) {
-        foreach ($fileDestinations as $fileDestination) {
-            if (! $fileDestination instanceof FileDestinationPort) {
-                throw new \LogicException('Toutes les destinations doivent implémenter FileDestinationPort');
-            }
-            $this->fileDestinations[$fileDestination->getDestination()->value] = $fileDestination;
-            if ($fileDestination->getDestination() === FileStorageDestinationEnum::LOCAL) {
-                if (! $fileDestination instanceof LocalStorageDestinationPort) {
-                    throw new \LogicException('Le storage local doit implémenter LocalStorageDestinationPort');
-                }
-                $this->localStorage = $fileDestination;
-            }
-        }
-        foreach ($fileFormatters as $fileFormatter) {
-            if (! $fileFormatter instanceof FileFormatterPort) {
-                throw new \LogicException('Toutes les destinations doivent implémenter FileDestinationPort');
-            }
-            $this->fileFormatters[$fileFormatter->getFileFormat()->value] = $fileFormatter;
-        }
+        $this->initFileDestinations($fileDestinations);
+        $this->initFileFormatters($fileFormatters);
         if (! isset($this->localStorage)) {
             throw new \LogicException('Aucun storage local trouvé');
         }
@@ -59,7 +43,7 @@ class FileStorageFactory
     {
         $count = count($data);
         $extension = pathinfo($path, PATHINFO_EXTENSION);
-        $fileFormat = FileFormatEnum::tryFrom(strtolower($extension))->value;
+        $fileFormat = FileFormatEnum::tryFrom(strtolower($extension))?->value;
 
         if ($fileFormat === null || ! isset($this->fileFormatters[$fileFormat])) {
             throw new \InvalidArgumentException(sprintf('Format de fichier non supporté : %s', $extension));
@@ -75,7 +59,7 @@ class FileStorageFactory
         $this->logger->info(sprintf('Destination %s', $destination));
 
         if (! isset($this->fileDestinations[$destination])) {
-            throw new \InvalidArgumentException(sprintf('Destination non supportée : %s', $destination->name));
+            throw new \InvalidArgumentException(sprintf('Destination non supportée : %s', $destination));
         }
 
         if ($warmupLimit !== null && $formatter instanceof FileFormatterWithWarmupLimitInterface) {
@@ -103,6 +87,32 @@ class FileStorageFactory
         unlink($tempPath);
 
         return new PersisterResultEntity($path, $count);
+    }
+
+    private function initFileDestinations(iterable $fileDestinations): void
+    {
+        foreach ($fileDestinations as $fileDestination) {
+            if (! $fileDestination instanceof FileDestinationPort) {
+                throw new \LogicException('Toutes les destinations doivent implémenter FileDestinationPort');
+            }
+            $this->fileDestinations[$fileDestination->getDestination()->value] = $fileDestination;
+            if ($fileDestination->getDestination() === FileStorageDestinationEnum::LOCAL) {
+                if (! $fileDestination instanceof LocalStorageDestinationPort) {
+                    throw new \LogicException('Le storage local doit implémenter LocalStorageDestinationPort');
+                }
+                $this->localStorage = $fileDestination;
+            }
+        }
+    }
+
+    private function initFileFormatters(iterable $fileFormatters): void
+    {
+        foreach ($fileFormatters as $fileFormatter) {
+            if (! $fileFormatter instanceof FileFormatterPort) {
+                throw new \LogicException('Toutes les destinations doivent implémenter FileDestinationPort');
+            }
+            $this->fileFormatters[$fileFormatter->getFileFormat()->value] = $fileFormatter;
+        }
     }
 
     private function resolveDestination(string $path): FileStorageDestinationEnum

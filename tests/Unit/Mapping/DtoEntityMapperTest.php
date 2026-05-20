@@ -1,13 +1,13 @@
 <?php
 
-namespace Unit\Mapping;
+namespace Cogep\PhpUtils\Tests\Unit\Mapping;
 
 use Cogep\PhpUtils\Mapping\DtoEntityMapper;
+use Cogep\PhpUtils\Tests\BaseMockeryTestCase;
 use Cogep\PhpUtils\Tests\Classes\DummyDynamicDTO;
 use Cogep\PhpUtils\Tests\Classes\DummyDynamicEntity;
-use PHPUnit\Framework\TestCase;
 
-class DtoEntityMapperTest extends TestCase
+class DtoEntityMapperTest extends BaseMockeryTestCase
 {
     private DtoEntityMapper $mapper;
 

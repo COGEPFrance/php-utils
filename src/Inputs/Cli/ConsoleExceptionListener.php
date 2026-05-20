@@ -34,10 +34,6 @@ class ConsoleExceptionListener
             ? $exception->getErrorCode()
             : ErrorCodeEnum::INTERNAL_ERROR;
 
-        if (! $event->getInput()->hasParameterOption('--json')) {
-            return;
-        }
-
         $this->logger->error(
             $exception->getMessage(),
             [
@@ -45,6 +41,10 @@ class ConsoleExceptionListener
                 'trace' => $exception->getTraceAsString(),
             ]
         );
+
+        if (! $event->getInput()->hasParameterOption('--json')) {
+            return;
+        }
 
         $dto = StandardResponseDto::error($errorCode, $exception->getMessage());
 

@@ -1,12 +1,12 @@
 <?php
 
-namespace Unit\Connectors\Configs;
+namespace Cogep\PhpUtils\Tests\Unit\Connectors\Configs;
 
 use Cogep\PhpUtils\Connectors\Configs\ApiClientConnectorConfig;
+use Cogep\PhpUtils\Tests\BaseMockeryTestCase;
 use InvalidArgumentException;
-use PHPUnit\Framework\TestCase;
 
-class ApiClientConnectorConfigTest extends TestCase
+class ApiClientConnectorConfigTest extends BaseMockeryTestCase
 {
     public function testExceptionWhenMissingCredentials(): void
     {
