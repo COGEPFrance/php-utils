@@ -76,8 +76,6 @@ class CsvFormatterTest extends TestCase
 
     public function testArrayToRawYieldsCsvWithoutWarmup()
     {
-        $this->logger->shouldReceive('info')
-            ->once();
         $this->logger->shouldReceive('debug')
             ->atLeast()
             ->once();
@@ -96,6 +94,7 @@ class CsvFormatterTest extends TestCase
         $this->assertStringContainsString('id;name', $lines[0]);
         $this->assertStringContainsString('1;foo', $lines[1]);
         $this->assertStringContainsString('2;bar', $lines[2]);
+        $this->assertCount(3, $lines);
     }
 
     public function testFormatValueHandlesTypes()

@@ -55,39 +55,60 @@ class CsvFormatter implements FileFormatterWithWarmupLimitInterface
         }
     }
 
-    /**
-     * @param iterable<array<string, mixed>> $data
-     */
     public function arrayToRaw(iterable $data, int $warmupLimit = 100): FormatterResult
     {
-        $count = 0;
-        $generator = (function () use ($data, $warmupLimit, &$count) {
-            $buffer = [];
-            /** @var array<string> $headers */
-            $headers = [];
-            $headerWritten = false;
-            foreach ($data as $entry) {
-                $dataArray = $this->toArray($entry);
-                if (! $headerWritten) {
-                    $buffer[] = $dataArray;
-                    $this->updateHeaders($dataArray, $headers);
-                    if (++$count >= $warmupLimit) {
-                        yield from $this->writeHeadersAndBuffer($headers, $buffer);
-                        $headerWritten = true;
-                        $buffer = [];
-                    }
-                } else {
-                    yield $this->writeLine($dataArray, $headers);
-                    $count++;
-                }
-            }
-            if (! $headerWritten && count($buffer) > 0) {
-                $this->logger->info('warmup limit never reached, writing headers and buffered data');
-                yield from $this->writeHeadersAndBuffer($headers, $buffer);
+        [$buffer, $headers] = $this->bufferDataAndHeaders($data, $warmupLimit);
+        $lines = $this->generateLines($buffer, $headers);
+        $count = count($buffer);
+
+        $generator = (function () use ($lines) {
+            foreach ($lines as $line) {
+                yield $line;
             }
         })();
 
-        return new FormatterResult($generator, $count);
+        return new FormatterResult($generator, $count > 0 ? $count : 0);
+    }
+
+    /**
+     * @param iterable<array<string, mixed>> $data
+     * @return array{0: array<array<string, mixed>>, 1: array<string>}
+     */
+    private function bufferDataAndHeaders(iterable $data, int $warmupLimit): array
+    {
+        $buffer = [];
+        $headers = [];
+        $headerWritten = false;
+        foreach ($data as $entry) {
+            $dataArray = $this->toArray($entry);
+            if (! $headerWritten) {
+                $buffer[] = $dataArray;
+                $this->updateHeaders($dataArray, $headers);
+                if (count($buffer) >= $warmupLimit) {
+                    $headerWritten = true;
+                }
+            } else {
+                $buffer[] = $dataArray;
+            }
+        }
+        return [$buffer, $headers];
+    }
+
+    /**
+     * @param array<array<string, mixed>> $buffer
+     * @param array<string> $headers
+     * @return array<string>
+     */
+    private function generateLines(array $buffer, array $headers): array
+    {
+        $lines = [];
+        if (count($buffer) > 0) {
+            $lines[] = $this->formatCsvRow(array_combine($headers, $headers), $headers);
+            foreach ($buffer as $dataArray) {
+                $lines[] = $this->formatCsvRow($dataArray, $headers);
+            }
+        }
+        return $lines;
     }
 
     /**
@@ -96,30 +117,6 @@ class CsvFormatter implements FileFormatterWithWarmupLimitInterface
     private function toArray(mixed $entry): array
     {
         return is_object($entry) ? get_object_vars($entry) : (array) $entry;
-    }
-
-    /**
-     * @param array<string> $headers
-     * @param array<int, array<string, mixed>> $buffer
-     */
-    private function writeHeadersAndBuffer(array $headers, array $buffer): \Generator
-    {
-        $this->logger->debug('headers', [
-            'headers' => $headers,
-        ]);
-        yield $this->formatCsvRow(array_combine($headers, $headers), $headers);
-        foreach ($buffer as $buffered) {
-            yield $this->formatCsvRow($buffered, $headers);
-        }
-    }
-
-    /**
-     * @param array<string, mixed> $dataArray
-     * @param array<string> $headers
-     */
-    private function writeLine(array $dataArray, array $headers): string
-    {
-        return $this->formatCsvRow($dataArray, $headers);
     }
 
     /**

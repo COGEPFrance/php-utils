@@ -23,23 +23,27 @@ class JsonFormatter implements FileFormatterPort
      */
     public function arrayToRaw(iterable $data): FormatterResult
     {
+        $lines = [];
         $count = 0;
-        $generator = (function () use ($data, &$count) {
-            yield '[';
-            $first = true;
-            foreach ($data as $entry) {
-                if (! $first) {
-                    yield ',';
-                }
-                $json = json_encode($entry, JSON_UNESCAPED_UNICODE);
-                if ($json === false) {
-                    throw new \RuntimeException('Erreur d\'encodage JSON');
-                }
-                yield $json;
-                $first = false;
-                $count++;
+        $first = true;
+        foreach ($data as $entry) {
+            if (! $first) {
+                $lines[] = ',';
             }
-            yield ']';
+            $json = json_encode($entry, JSON_UNESCAPED_UNICODE);
+            if ($json === false) {
+                throw new \RuntimeException('Erreur d\'encodage JSON');
+            }
+            $lines[] = $json;
+            $first = false;
+            $count++;
+        }
+        array_unshift($lines, '[');
+        $lines[] = ']';
+        $generator = (function () use ($lines) {
+            foreach ($lines as $line) {
+                yield $line;
+            }
         })();
 
         return new FormatterResult($generator, $count);

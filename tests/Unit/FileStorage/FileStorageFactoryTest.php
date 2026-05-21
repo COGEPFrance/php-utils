@@ -69,9 +69,13 @@ class FileStorageFactoryTest extends TestCase
             ->once();
 
         $this->formatter->shouldReceive('arrayToRaw')
-            ->andReturn(new FormatterResult((function () {
-                yield 'foo';
-            })(), 1));
+            ->andReturnUsing(function ($data, $warmupLimit = 100) {
+                $generator = (function () {
+                    yield 'foo';
+                    yield 'bar';
+                });
+                return new FormatterResult($generator(), 2);
+            });
         $this->localStorage->shouldReceive('getDestination')
             ->andReturn(FileStorageDestinationEnum::LOCAL);
         $this->localStorage->shouldReceive('saveRawFileFromGenerator')
@@ -105,18 +109,32 @@ class FileStorageFactoryTest extends TestCase
             ->andReturn(FileStorageDestinationEnum::AZURE);
 
         $this->formatter->shouldReceive('arrayToRaw')
-            ->andReturn(new FormatterResult((function () {
-                yield 'foo';
-            })(), 1));
+            ->andReturnUsing(function () {
+                $count = 0;
+                $generator = (function () use (&$count) {
+                    yield 'foo';
+                    $count++;
+                    yield 'bar';
+                    $count++;
+                })();
+                $lines = iterator_to_array($generator);
+                return new FormatterResult((function () use ($lines) {
+                    foreach ($lines as $line) {
+                        yield $line;
+                    }
+                })(), count($lines));
+            });
         $this->localStorage->shouldReceive('getDestination')
             ->andReturn(FileStorageDestinationEnum::LOCAL);
         $this->logger->shouldReceive('info')
             ->twice();
 
         $factory = new FileStorageFactory([$this->localStorage], [$this->formatter], $this->logger);
-        $factory->write('azure://container/file.csv', [[
+        $result = $factory->write('azure://container/file.csv', [[
             'a' => 1,
         ]]);
+
+        $this->assertSame(1, $result->count);
     }
 
     public function testStripPrefixRemovesKnownPrefix()
@@ -135,11 +153,20 @@ class FileStorageFactoryTest extends TestCase
         $formatter->shouldReceive('getFileFormat')
             ->andReturn(FileFormatEnum::CSV);
         $formatter->shouldReceive('arrayToRaw')
-            ->andReturn(new FormatterResult((function () {
-                yield 'foo';
-            })(), 1));
+            ->andReturnUsing(function () {
+                $generator = (function () {
+                    yield 'foo';
+                    yield 'bar';
+                });
+                return new FormatterResult($generator(), 2);
+            });
         $this->localStorage->shouldReceive('saveRawFileFromGenerator')
-            ->once();
+            ->once()
+            ->withArgs(function ($path, $rawGenerator) {
+                foreach ($rawGenerator as $line) {
+                }
+                return true;
+            });
         $this->logger->shouldReceive('info')
             ->twice();
 
@@ -148,6 +175,7 @@ class FileStorageFactoryTest extends TestCase
             'a' => 1,
         ]], 10);
         $this->assertInstanceOf(PersisterResultEntity::class, $result);
+        $this->assertSame(2, $result->count);
     }
 
     public function testResolveDestinationReturnsExpectedEnum()
