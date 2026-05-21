@@ -67,7 +67,8 @@ class CsvFormatterTest extends TestCase
                 'name' => 'bar',
             ],
         ];
-        $lines = iterator_to_array($this->formatter->arrayToRaw($data, 1), false);
+        $result = $this->formatter->arrayToRaw($data, 1);
+        $lines = iterator_to_array($result->raw, false);
         $this->assertStringContainsString('id;name', $lines[0]);
         $this->assertStringContainsString('1;foo', $lines[1]);
         $this->assertStringContainsString('2;bar', $lines[2]);
@@ -90,7 +91,8 @@ class CsvFormatterTest extends TestCase
                 'name' => 'bar',
             ],
         ];
-        $lines = iterator_to_array($this->formatter->arrayToRaw($data, 10));
+        $result = $this->formatter->arrayToRaw($data, 10);
+        $lines = iterator_to_array($result->raw, false);
         $this->assertStringContainsString('id;name', $lines[0]);
         $this->assertStringContainsString('1;foo', $lines[1]);
         $this->assertStringContainsString('2;bar', $lines[2]);

@@ -3,6 +3,7 @@
 namespace Cogep\PhpUtils\FileStorage\Formats\Csv;
 
 use Cogep\PhpUtils\FileStorage\Enums\FileFormatEnum;
+use Cogep\PhpUtils\FileStorage\Formats\FormatterResult;
 use Cogep\PhpUtils\FileStorage\Ports\FileFormatterWithWarmupLimitInterface;
 use Psr\Log\LoggerInterface;
 
@@ -57,18 +58,14 @@ class CsvFormatter implements FileFormatterWithWarmupLimitInterface
     /**
      * @param iterable<array<string, mixed>> $data
      */
-    public function arrayToRaw(iterable $data, int $warmupLimit = 100): \Generator
+    public function arrayToRaw(iterable $data, int $warmupLimit = 100): FormatterResult
     {
-        $stream = fopen('php://temp', 'w+');
-        if ($stream === false) {
-            throw new \RuntimeException('Impossible d’ouvrir un flux temporaire.');
-        }
-        $buffer = [];
-        /** @var array<string> $headers */
-        $headers = [];
         $count = 0;
-        $headerWritten = false;
-        try {
+        $generator = (function () use ($data, $warmupLimit, &$count) {
+            $buffer = [];
+            /** @var array<string> $headers */
+            $headers = [];
+            $headerWritten = false;
             foreach ($data as $entry) {
                 $dataArray = $this->toArray($entry);
                 if (! $headerWritten) {
@@ -81,15 +78,16 @@ class CsvFormatter implements FileFormatterWithWarmupLimitInterface
                     }
                 } else {
                     yield $this->writeLine($dataArray, $headers);
+                    $count++;
                 }
             }
             if (! $headerWritten && count($buffer) > 0) {
                 $this->logger->info('warmup limit never reached, writing headers and buffered data');
                 yield from $this->writeHeadersAndBuffer($headers, $buffer);
             }
-        } finally {
-            fclose($stream);
-        }
+        })();
+
+        return new FormatterResult($generator, $count);
     }
 
     /**

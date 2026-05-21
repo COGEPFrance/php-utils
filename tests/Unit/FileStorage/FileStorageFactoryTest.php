@@ -6,6 +6,7 @@ use Cogep\PhpUtils\FileStorage\Destinations\Local\LocalStorageDestinationPort;
 use Cogep\PhpUtils\FileStorage\Enums\FileFormatEnum;
 use Cogep\PhpUtils\FileStorage\Enums\FileStorageDestinationEnum;
 use Cogep\PhpUtils\FileStorage\FileStorageFactory;
+use Cogep\PhpUtils\FileStorage\Formats\FormatterResult;
 use Cogep\PhpUtils\FileStorage\PersisterResultEntity;
 use Cogep\PhpUtils\FileStorage\Ports\FileDestinationPort;
 use Cogep\PhpUtils\FileStorage\Ports\FileFormatterPort;
@@ -42,9 +43,9 @@ class FileStorageFactoryTest extends TestCase
     public function testWriteLocalStorage()
     {
         $this->formatter->shouldReceive('arrayToRaw')
-            ->andReturn((function () {
+            ->andReturn(new FormatterResult((function () {
                 yield 'foo';
-            })());
+            })(), 1));
         $this->localStorage->shouldReceive('saveRawFileFromGenerator')
             ->once();
         $factory = new FileStorageFactory([$this->localStorage], [$this->formatter], $this->logger);
@@ -68,9 +69,9 @@ class FileStorageFactoryTest extends TestCase
             ->once();
 
         $this->formatter->shouldReceive('arrayToRaw')
-            ->andReturn((function () {
+            ->andReturn(new FormatterResult((function () {
                 yield 'foo';
-            })());
+            })(), 1));
         $this->localStorage->shouldReceive('getDestination')
             ->andReturn(FileStorageDestinationEnum::LOCAL);
         $this->localStorage->shouldReceive('saveRawFileFromGenerator')
@@ -104,9 +105,9 @@ class FileStorageFactoryTest extends TestCase
             ->andReturn(FileStorageDestinationEnum::AZURE);
 
         $this->formatter->shouldReceive('arrayToRaw')
-            ->andReturn((function () {
+            ->andReturn(new FormatterResult((function () {
                 yield 'foo';
-            })());
+            })(), 1));
         $this->localStorage->shouldReceive('getDestination')
             ->andReturn(FileStorageDestinationEnum::LOCAL);
         $this->logger->shouldReceive('info')
@@ -134,9 +135,9 @@ class FileStorageFactoryTest extends TestCase
         $formatter->shouldReceive('getFileFormat')
             ->andReturn(FileFormatEnum::CSV);
         $formatter->shouldReceive('arrayToRaw')
-            ->andReturn((function () {
+            ->andReturn(new FormatterResult((function () {
                 yield 'foo';
-            })());
+            })(), 1));
         $this->localStorage->shouldReceive('saveRawFileFromGenerator')
             ->once();
         $this->logger->shouldReceive('info')

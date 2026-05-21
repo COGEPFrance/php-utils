@@ -46,9 +46,8 @@ class FileStorageFactory
     /**
      * @param array<mixed,mixed> $data
      */
-    public function write(string $path, array $data, ?int $warmupLimit = null): PersisterResultEntity
+    public function write(string $path, iterable $data, ?int $warmupLimit = null): PersisterResultEntity
     {
-        $count = count($data);
         $extension = pathinfo($path, PATHINFO_EXTENSION);
         $fileFormat = FileFormatEnum::tryFrom(strtolower($extension))?->value;
 
@@ -70,14 +69,16 @@ class FileStorageFactory
         }
 
         if ($warmupLimit !== null && $formatter instanceof FileFormatterWithWarmupLimitInterface) {
-            $rawGenerator = $formatter->arrayToRaw($data, $warmupLimit);
+            $formatterResult = $formatter->arrayToRaw($data, $warmupLimit);
         } else {
-            $rawGenerator = $formatter->arrayToRaw($data);
+            $formatterResult = $formatter->arrayToRaw($data);
         }
+
+        $rawGenerator = $formatterResult->raw;
 
         if ($destination === FileStorageDestinationEnum::LOCAL->value) {
             $this->localStorage->saveRawFileFromGenerator($path, $rawGenerator);
-            return new PersisterResultEntity($path, $count);
+            return new PersisterResultEntity($path, $formatterResult->count);
         }
 
         $fileDestination = $this->fileDestinations[$destination];
@@ -93,7 +94,7 @@ class FileStorageFactory
         $fileDestination->saveRawFile($this->stripPrefix($path), $completeStream);
         unlink($tempPath);
 
-        return new PersisterResultEntity($path, $count);
+        return new PersisterResultEntity($path, $formatterResult->count);
     }
 
     /**
