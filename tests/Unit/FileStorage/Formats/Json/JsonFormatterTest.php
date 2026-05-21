@@ -45,7 +45,7 @@ class JsonFormatterTest extends TestCase
 
     public function testRawToArrayYieldsDecodedLines()
     {
-        $raw = '{"id":1,"name":"foo"}' . PHP_EOL . '{"id":2,"name":"bar"}';
+        $raw = '[{"id":1,"name":"foo"},{"id":2,"name":"bar"}]';
         $result = iterator_to_array($this->formatter->rawToArray($raw));
         $this->assertSame([
             [
@@ -61,7 +61,7 @@ class JsonFormatterTest extends TestCase
 
     public function testRawToArraySkipsEmptyLines()
     {
-        $raw = "\n\n{\"id\":1}\n\n";
+        $raw = "[\n\n{\"id\":1}\n\n]";
         $result = iterator_to_array($this->formatter->rawToArray($raw));
         $this->assertSame([[
             'id' => 1,
