@@ -12,7 +12,14 @@ interface FileFormatterPort
 {
     public function getFileFormat(): FileFormatEnum;
 
+    /**
+     * @param iterable<array<string,mixed>> $data
+     * @return Generator<string>
+     */
     public function arrayToRaw(iterable $data): Generator;
 
+    /**
+     * @return iterable<array<string,mixed>>
+     */
     public function rawToArray(string $raw): iterable;
 }

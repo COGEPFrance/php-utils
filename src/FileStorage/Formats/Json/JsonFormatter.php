@@ -17,6 +17,9 @@ class JsonFormatter implements FileFormatterPort
         return FileFormatEnum::JSON;
     }
 
+    /**
+     * @param iterable<array<string,mixed>> $data
+     */
     public function arrayToRaw(iterable $data): Generator
     {
         yield '[';
@@ -25,22 +28,27 @@ class JsonFormatter implements FileFormatterPort
             if (! $first) {
                 yield ',';
             }
-            yield json_encode($entry, JSON_UNESCAPED_UNICODE);
+            $json = json_encode($entry, JSON_UNESCAPED_UNICODE);
+            if ($json === false) {
+                throw new \RuntimeException('Erreur d\'encodage JSON');
+            }
+            yield $json;
             $first = false;
         }
         yield ']';
     }
 
+    /**
+     * @return Generator<array<string,mixed>>
+     */
     public function rawToArray(string $raw): Generator
     {
-        $lines = explode(PHP_EOL, $raw);
-
-        foreach ($lines as $line) {
-            if (trim($line) === '') {
-                continue;
-            }
-
-            yield json_decode($line, true, 512, JSON_THROW_ON_ERROR);
+        $data = json_decode($raw, true, 512, JSON_THROW_ON_ERROR);
+        if (! is_array($data)) {
+            return;
+        }
+        foreach ($data as $item) {
+            yield $item;
         }
     }
 }

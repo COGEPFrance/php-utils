@@ -13,24 +13,28 @@ use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 
 class FileStorageFactory
 {
+    private LocalStorageDestinationPort $localStorage;
+
     /**
-     * @var array<FileStorageDestinationEnum, FileDestinationPort>
+     * @var array<FileStorageDestinationEnum,FileDestinationPort>
      */
     private array $fileDestinations;
 
     /**
-     * @var array<FileFormatEnum, FileFormatterPort>
+     * @var array<FileFormatEnum,FileFormatterPort>
      */
     private array $fileFormatters;
 
-    private LocalStorageDestinationPort $localStorage;
-
+    /**
+     * @param array<mixed,mixed> $fileDestinations
+     * @param array<mixed,mixed> $fileFormatters
+     */
     public function __construct(
         #[AutowireIterator(FileStorageConsts::FILE_DESTINATION)]
         iterable $fileDestinations,
         #[AutowireIterator(FileStorageConsts::FILE_FORMATTER)]
         iterable $fileFormatters,
-        private readonly LoggerInterface $logger,
+        public readonly LoggerInterface $logger,
     ) {
         $this->initFileDestinations($fileDestinations);
         $this->initFileFormatters($fileFormatters);
@@ -39,6 +43,9 @@ class FileStorageFactory
         }
     }
 
+    /**
+     * @param array<mixed,mixed> $data
+     */
     public function write(string $path, array $data, ?int $warmupLimit = null): PersisterResultEntity
     {
         $count = count($data);
@@ -89,6 +96,9 @@ class FileStorageFactory
         return new PersisterResultEntity($path, $count);
     }
 
+    /**
+     * @param array<mixed,mixed> $fileDestinations
+     */
     private function initFileDestinations(iterable $fileDestinations): void
     {
         foreach ($fileDestinations as $fileDestination) {
@@ -105,6 +115,9 @@ class FileStorageFactory
         }
     }
 
+    /**
+     * @param array<mixed,mixed> $fileFormatters
+     */
     private function initFileFormatters(iterable $fileFormatters): void
     {
         foreach ($fileFormatters as $fileFormatter) {

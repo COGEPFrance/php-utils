@@ -18,9 +18,15 @@ class CsvFormatter implements FileFormatterWithWarmupLimitInterface
         return FileFormatEnum::CSV;
     }
 
+    /**
+     * @return iterable<array<string,mixed>>
+     */
     public function rawToArray(string $raw): iterable
     {
         $stream = fopen('php://temp', 'r+');
+        if ($stream === false) {
+            throw new \RuntimeException('Impossible d’ouvrir un flux temporaire.');
+        }
         fwrite($stream, $raw);
         rewind($stream);
 
@@ -48,9 +54,15 @@ class CsvFormatter implements FileFormatterWithWarmupLimitInterface
         }
     }
 
+    /**
+     * @param iterable<array<string, mixed>> $data
+     */
     public function arrayToRaw(iterable $data, int $warmupLimit = 100): \Generator
     {
         $stream = fopen('php://temp', 'w+');
+        if ($stream === false) {
+            throw new \RuntimeException('Impossible d’ouvrir un flux temporaire.');
+        }
         $buffer = [];
         /** @var array<string> $headers */
         $headers = [];
@@ -149,6 +161,10 @@ class CsvFormatter implements FileFormatterWithWarmupLimitInterface
         $headers = array_values(array_unique([...$headers, ...$keys]));
     }
 
+    /**
+     * @param array<string, mixed> $data
+     * @param array<string> $headers
+     */
     private function formatCsvRow(array $data, array $headers = []): string
     {
         $line = [];

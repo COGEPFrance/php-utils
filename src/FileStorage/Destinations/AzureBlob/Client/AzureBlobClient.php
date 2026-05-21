@@ -39,11 +39,11 @@ class AzureBlobClient
         return $response->getContent();
     }
 
-    private function callAzureStorageApi(
-        string $method,
-        string $blobPath,
-        array $options = []
-    ): ResponseInterface {
+    /**
+     * @param array<string,mixed> $options
+     */
+    private function callAzureStorageApi(string $method, string $blobPath, array $options = []): ResponseInterface
+    {
         foreach ([false, true] as $withSas) {
             $url = $this->getBlobUrl($blobPath, $withSas);
             try {
@@ -89,16 +89,12 @@ class AzureBlobClient
     private function getBlobUrl(string $blobPath, bool $withSasToken = false): string
     {
         $parts = explode('/', $this->trimSlashes($blobPath), 2);
-        if (count($parts) !== 2 || empty($parts[0]) || empty($parts[1])) {
+        if (count($parts) !== 2 || $parts[0] === '' || $parts[1] === '') {
             throw new \RuntimeException(
                 'Le chemin du blob doit être au format "container/nom_fichier.extension". Reçu : ' . $blobPath
             );
         }
         [$container, $blob] = $parts;
-
-        if (empty($container) || empty($blob)) {
-            throw new \RuntimeException('Le chemin du blob est invalide.');
-        }
 
         $baseUrl = rtrim($this->config->accountUrl, '/') . '/' . $container . '/' . $blob;
 
