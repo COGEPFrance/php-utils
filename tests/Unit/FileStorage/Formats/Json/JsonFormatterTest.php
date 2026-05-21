@@ -32,14 +32,16 @@ class JsonFormatterTest extends TestCase
                 'name' => 'bar',
             ],
         ];
-        $result = implode('', iterator_to_array($this->formatter->arrayToRaw($data)));
+        $formatterResult = $this->formatter->arrayToRaw($data);
+        $result = implode('', iterator_to_array($formatterResult->raw));
         $this->assertJson($result);
         $this->assertSame('[{"id":1,"name":"foo"},{"id":2,"name":"bar"}]', $result);
     }
 
     public function testArrayToRawYieldsEmptyArrayForEmptyInput()
     {
-        $result = implode('', iterator_to_array($this->formatter->arrayToRaw([])));
+        $formatterResult = $this->formatter->arrayToRaw([]);
+        $result = implode('', iterator_to_array($formatterResult->raw));
         $this->assertSame('[]', $result);
     }
 

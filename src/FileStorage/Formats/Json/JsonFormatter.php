@@ -4,6 +4,7 @@ namespace Cogep\PhpUtils\FileStorage\Formats\Json;
 
 use Cogep\PhpUtils\Classes\EntityInterface;
 use Cogep\PhpUtils\FileStorage\Enums\FileFormatEnum;
+use Cogep\PhpUtils\FileStorage\Formats\FormatterResult;
 use Cogep\PhpUtils\FileStorage\Ports\FileFormatterPort;
 use Generator;
 
@@ -20,22 +21,28 @@ class JsonFormatter implements FileFormatterPort
     /**
      * @param iterable<array<string,mixed>> $data
      */
-    public function arrayToRaw(iterable $data): Generator
+    public function arrayToRaw(iterable $data): FormatterResult
     {
-        yield '[';
-        $first = true;
-        foreach ($data as $entry) {
-            if (! $first) {
-                yield ',';
+        $count = 0;
+        $generator = (function () use ($data, &$count) {
+            yield '[';
+            $first = true;
+            foreach ($data as $entry) {
+                if (! $first) {
+                    yield ',';
+                }
+                $json = json_encode($entry, JSON_UNESCAPED_UNICODE);
+                if ($json === false) {
+                    throw new \RuntimeException('Erreur d\'encodage JSON');
+                }
+                yield $json;
+                $first = false;
+                $count++;
             }
-            $json = json_encode($entry, JSON_UNESCAPED_UNICODE);
-            if ($json === false) {
-                throw new \RuntimeException('Erreur d\'encodage JSON');
-            }
-            yield $json;
-            $first = false;
-        }
-        yield ']';
+            yield ']';
+        })();
+
+        return new FormatterResult($generator, $count);
     }
 
     /**

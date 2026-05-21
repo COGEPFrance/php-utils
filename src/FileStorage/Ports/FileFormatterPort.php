@@ -4,7 +4,7 @@ namespace Cogep\PhpUtils\FileStorage\Ports;
 
 use Cogep\PhpUtils\FileStorage\Enums\FileFormatEnum;
 use Cogep\PhpUtils\FileStorage\FileStorageConsts;
-use Generator;
+use Cogep\PhpUtils\FileStorage\Formats\FormatterResult;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 #[AutoconfigureTag(FileStorageConsts::FILE_FORMATTER)]
@@ -14,9 +14,8 @@ interface FileFormatterPort
 
     /**
      * @param iterable<array<string,mixed>> $data
-     * @return Generator<string>
      */
-    public function arrayToRaw(iterable $data): Generator;
+    public function arrayToRaw(iterable $data): FormatterResult;
 
     /**
      * @return iterable<array<string,mixed>>
