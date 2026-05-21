@@ -4,13 +4,12 @@ namespace Cogep\PhpUtils\Tests\Unit\Inputs\Rabbitmq;
 
 use Cogep\PhpUtils\Inputs\Rabbitmq\RabbitMqConsumerCommand;
 use Cogep\PhpUtils\Inputs\Rabbitmq\RabbitMqWorker;
+use Cogep\PhpUtils\Tests\BaseMockeryTestCase;
 use Cogep\PhpUtils\Tests\Fixtures\TestConfig;
-use Mockery;
-use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
-class RabbitMqConsumerCommandTest extends TestCase
+class RabbitMqConsumerCommandTest extends BaseMockeryTestCase
 {
     private $worker;
 
@@ -18,7 +17,7 @@ class RabbitMqConsumerCommandTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->worker = Mockery::mock(RabbitMqWorker::class);
+        $this->worker = \Mockery::mock(RabbitMqWorker::class);
     }
 
     public function testExecuteWithArgument()

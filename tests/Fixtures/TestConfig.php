@@ -18,6 +18,8 @@ readonly class TestConfig extends Settings
             rabbitPass: 'guest',
             rabbitQueueCmd: 'test_queue',
             rabbitQueueDlq: 'test-dlq',
+            azureStorageAccount: 'https://test-storage.blob.core.windows.net',
+            azureBlobSasToken: null,
         );
     }
 

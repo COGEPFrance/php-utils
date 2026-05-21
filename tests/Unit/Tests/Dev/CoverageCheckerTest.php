@@ -1,11 +1,11 @@
 <?php
 
-namespace Unit\Tests\Dev;
+namespace Cogep\PhpUtils\Tests\Unit\Tests\Dev;
 
+use Cogep\PhpUtils\Tests\BaseMockeryTestCase;
 use Cogep\PhpUtils\Tests\Dev\CoverageChecker;
-use PHPUnit\Framework\TestCase;
 
-class CoverageCheckerTest extends TestCase
+class CoverageCheckerTest extends BaseMockeryTestCase
 {
     public const string XML_COVER_90 =
         '<?xml version="1.0" encoding="UTF-8"?>

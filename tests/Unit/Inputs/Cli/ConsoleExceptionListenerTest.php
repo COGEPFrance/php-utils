@@ -5,8 +5,9 @@ namespace Cogep\PhpUtils\Tests\Unit\Inputs\Cli;
 use Cogep\PhpUtils\Enums\ErrorCodeEnum;
 use Cogep\PhpUtils\Exceptions\DomainException;
 use Cogep\PhpUtils\Inputs\Cli\ConsoleExceptionListener;
+use Cogep\PhpUtils\Tests\BaseMockeryTestCase;
 use Mockery;
-use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Event\ConsoleErrorEvent;
 use Symfony\Component\Console\Event\ConsoleTerminateEvent;
@@ -14,16 +15,19 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
-class ConsoleExceptionListenerTest extends TestCase
+class ConsoleExceptionListenerTest extends BaseMockeryTestCase
 {
     private $serializer;
 
     private $listener;
 
+    private $logger;
+
     protected function setUp(): void
     {
-        $this->serializer = Mockery::mock(SerializerInterface::class);
-        $this->listener = new ConsoleExceptionListener($this->serializer);
+        $this->serializer = \Mockery::mock(SerializerInterface::class);
+        $this->logger = \Mockery::mock(LoggerInterface::class);
+        $this->listener = new ConsoleExceptionListener($this->serializer, $this->logger);
     }
 
     public function testOnConsoleErrorIgnoresIfNoJsonOption()
@@ -32,7 +36,8 @@ class ConsoleExceptionListenerTest extends TestCase
         $input->shouldReceive('hasParameterOption')
             ->with('--json')
             ->andReturn(false);
-
+        $this->logger->shouldReceive('error')
+            ->once();
         $event = new ConsoleErrorEvent($input, Mockery::mock(OutputInterface::class), new \Exception(), new Command(
             'test'
         ));
@@ -49,7 +54,8 @@ class ConsoleExceptionListenerTest extends TestCase
         $input->shouldReceive('hasParameterOption')
             ->with('--json')
             ->andReturn(true);
-
+        $this->logger->shouldReceive('error')
+            ->once();
         $exception = new DomainException(ErrorCodeEnum::VALIDATION_ERROR, 'Invalid data');
         $event = new ConsoleErrorEvent($input, Mockery::mock(OutputInterface::class), $exception, new Command(
             'test'
@@ -71,12 +77,12 @@ class ConsoleExceptionListenerTest extends TestCase
         $input->shouldReceive('hasParameterOption')
             ->with('--json')
             ->andReturn(true);
-
+        $this->logger->shouldReceive('error')
+            ->once();
         $exception = new \Exception('Generic crash');
         $event = new ConsoleErrorEvent($input, Mockery::mock(OutputInterface::class), $exception, new Command(
             'test'
         ));
-
         $this->serializer->shouldReceive('serialize')
             ->with(
                 Mockery::on(fn ($dto) => $dto->error->code === ErrorCodeEnum::INTERNAL_ERROR),

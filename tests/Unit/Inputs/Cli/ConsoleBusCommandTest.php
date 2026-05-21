@@ -8,8 +8,8 @@ use Cogep\PhpUtils\Enums\ErrorCodeEnum;
 use Cogep\PhpUtils\Helpers\EntityValidator;
 use Cogep\PhpUtils\Inputs\Cli\ConsoleBusCommand;
 use Cogep\PhpUtils\Inputs\Cli\ConsoleCommandHelper;
+use Cogep\PhpUtils\Tests\BaseMockeryTestCase;
 use Mockery;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -21,7 +21,7 @@ use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
-class ConsoleBusCommandTest extends MockeryTestCase
+class ConsoleBusCommandTest extends BaseMockeryTestCase
 {
     private $serializer;
 

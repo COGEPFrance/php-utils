@@ -7,14 +7,14 @@ use Cogep\PhpUtils\Command\BusCommand;
 use Cogep\PhpUtils\Command\CommandRegistry;
 use Cogep\PhpUtils\DependencyInjection\Compiler\BusCommandGeneratorPass;
 use Cogep\PhpUtils\Inputs\Rabbitmq\RabbitMqWorker;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
+use Cogep\PhpUtils\Tests\BaseMockeryTestCase;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 
-class CogepPhpUtilsBundleTest extends MockeryTestCase
+class CogepPhpUtilsBundleTest extends BaseMockeryTestCase
 {
     protected function setUp(): void
     {

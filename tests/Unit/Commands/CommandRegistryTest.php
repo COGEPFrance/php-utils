@@ -1,15 +1,15 @@
 <?php
 
-namespace Cogep\PhpUtils\Tests\Unit\Command;
+namespace Cogep\PhpUtils\Tests\Unit\Commands;
 
 use Cogep\PhpUtils\Command\CommandRegistry;
+use Cogep\PhpUtils\Tests\BaseMockeryTestCase;
 use Cogep\PhpUtils\Tests\Classes\DummyDynamicDTO;
 use Cogep\PhpUtils\Tests\Fixtures\DummyExposedCommand;
 use Cogep\PhpUtils\Tests\Fixtures\DummyHiddenCommand;
-use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
-class CommandRegistryTest extends TestCase
+class CommandRegistryTest extends BaseMockeryTestCase
 {
     public function testConstructorMapsCommandsWithAttributes(): void
     {

@@ -3,16 +3,16 @@
 namespace Cogep\PhpUtils\Tests\Unit\Inputs\Rabbitmq;
 
 use Cogep\PhpUtils\Inputs\Rabbitmq\RabbitMqWorker;
+use Cogep\PhpUtils\Tests\BaseMockeryTestCase;
 use Cogep\PhpUtils\Tests\Fixtures\TestConfig;
 use Mockery;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Message\AMQPMessage;
-use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class RabbitMqWorkerTest extends TestCase
+class RabbitMqWorkerTest extends BaseMockeryTestCase
 {
     private $connection;
 

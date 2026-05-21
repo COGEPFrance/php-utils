@@ -1,13 +1,13 @@
 <?php
 
-namespace Unit\Logs;
+namespace Cogep\PhpUtils\Tests\Unit\Logs;
 
 use Cogep\PhpUtils\Logs\UrlTruncatorProcessor;
+use Cogep\PhpUtils\Tests\BaseMockeryTestCase;
 use Monolog\Level;
 use Monolog\LogRecord;
-use PHPUnit\Framework\TestCase;
 
-class UrlTruncatorProcessorTest extends TestCase
+class UrlTruncatorProcessorTest extends BaseMockeryTestCase
 {
     private UrlTruncatorProcessor $processor;
 

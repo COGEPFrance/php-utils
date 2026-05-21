@@ -4,12 +4,12 @@ namespace Cogep\PhpUtils\Tests\Unit\Inputs\Http;
 
 use Cogep\PhpUtils\Inputs\Http\BusCommandRouteLoader;
 use Cogep\PhpUtils\Inputs\Http\GenericMessageController;
+use Cogep\PhpUtils\Tests\BaseMockeryTestCase;
 use Cogep\PhpUtils\Tests\Fixtures\DummyExposedCommand;
 use Cogep\PhpUtils\Tests\Fixtures\DummyHiddenCommand;
-use PHPUnit\Framework\TestCase;
 use Symfony\Component\Routing\RouteCollection;
 
-class BusCommandRouteLoaderTest extends TestCase
+class BusCommandRouteLoaderTest extends BaseMockeryTestCase
 {
     public function testSupportsReturnsTrueForCorrectType(): void
     {

@@ -2,11 +2,9 @@
 
 namespace Cogep\PhpUtils\Config;
 
+use Cogep\PhpUtils\FileStorage\Destinations\AzureBlob\Client\AzureBlobConfig;
 use Cogep\PhpUtils\Inputs\Rabbitmq\QueueHandlers\Commands\RabbitMqCommandQueueHandler;
 
-/**
- * @phpstan-consistent-constructor
- */
 readonly class Settings
 {
     public function __construct(
@@ -19,14 +17,20 @@ readonly class Settings
         public string $rabbitPass,
         public string $rabbitQueueCmd,
         public string $rabbitQueueDlq,
+        public string $azureStorageAccount,
+        public ?string $azureBlobSasToken,
         public int $appPort = 8000,
         public int $rabbitPrefetch = 1,
     ) {
     }
 
-    public static function fromEnv(): static
+    /**
+     * Crée une instance Settings à partir des variables d'environnement.
+     * Utilise new self() pour éviter les problèmes d'héritage.
+     */
+    public static function fromEnv(): self
     {
-        return new static(
+        return new self(
             appName: self::getRequiredEnv('APP_NAME'),
             appVersion: self::getRequiredEnv('APP_VERSION'),
             appEnv: self::getRequiredEnv('APP_ENV'),
@@ -36,10 +40,19 @@ readonly class Settings
             rabbitPass: self::getRequiredEnv('RABBITMQ_PASSWORD'),
             rabbitQueueCmd: self::getRequiredEnv('RABBITMQ_QUEUE_COMMANDS'),
             rabbitQueueDlq: self::getRequiredEnv('RABBITMQ_QUEUE_DLQ'),
+            azureStorageAccount: self::getRequiredEnv('AZURE_STORAGE_URL'),
+            azureBlobSasToken: self::getDefaultEnv('AZURE_BLOB_SAS_TOKEN', null),
             appPort: (int) self::getDefaultEnv('APP_PORT', '8000'),
             rabbitPrefetch: (int) self::getDefaultEnv('RABBITMQ_PREFETCH_COUNT', '1'),
         );
     }
+
+    /**
+     * Chaque classe enfant doit implémenter sa propre méthode statique fromEnv(),
+     * et appeler explicitement le constructeur parent avec les bons arguments.
+     * Cela évite les problèmes liés à l'utilisation de new static() dans le parent.
+     */
+    // public static function fromEnv(): static { ... } // À implémenter dans chaque enfant
 
     /**
      * @return array<string, class-string>
@@ -51,7 +64,12 @@ readonly class Settings
         ];
     }
 
-    protected static function getDefaultEnv(string $key, string $default): string
+    public function getAzureBlobConfig(): AzureBlobConfig
+    {
+        return new AzureBlobConfig(accountUrl: $this->azureStorageAccount, sasToken: $this->azureBlobSasToken);
+    }
+
+    protected static function getDefaultEnv(string $key, string|null $default): ?string
     {
         return $_ENV[$key] ?? (getenv($key) !== false ? getenv($key) : $default);
     }

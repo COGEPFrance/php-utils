@@ -5,6 +5,7 @@ namespace Cogep\PhpUtils\Inputs\Cli;
 use Cogep\PhpUtils\Classes\Responses\StandardResponseDto;
 use Cogep\PhpUtils\Enums\ErrorCodeEnum;
 use Cogep\PhpUtils\Exceptions\DomainException;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Event\ConsoleErrorEvent;
 use Symfony\Component\Console\Event\ConsoleTerminateEvent;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
@@ -16,7 +17,8 @@ use Symfony\Component\Serializer\SerializerInterface;
 class ConsoleExceptionListener
 {
     public function __construct(
-        private readonly SerializerInterface $serializer
+        private readonly SerializerInterface $serializer,
+        private readonly LoggerInterface $logger
     ) {
     }
 
@@ -31,6 +33,14 @@ class ConsoleExceptionListener
         $errorCode = ($exception instanceof DomainException)
             ? $exception->getErrorCode()
             : ErrorCodeEnum::INTERNAL_ERROR;
+
+        $this->logger->error(
+            $exception->getMessage(),
+            [
+                'exception' => $exception,
+                'trace' => $exception->getTraceAsString(),
+            ]
+        );
 
         if (! $event->getInput()->hasParameterOption('--json')) {
             return;

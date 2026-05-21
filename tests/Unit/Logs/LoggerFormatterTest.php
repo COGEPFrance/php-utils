@@ -1,13 +1,13 @@
 <?php
 
-namespace Unit\Logs;
+namespace Cogep\PhpUtils\Tests\Unit\Logs;
 
 use Cogep\PhpUtils\Logs\LoggerFormator;
+use Cogep\PhpUtils\Tests\BaseMockeryTestCase;
 use Monolog\Level;
 use Monolog\LogRecord;
-use PHPUnit\Framework\TestCase;
 
-class LoggerFormatterTest extends TestCase
+class LoggerFormatterTest extends BaseMockeryTestCase
 {
     private LoggerFormator $formatter;
 
