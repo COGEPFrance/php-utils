@@ -45,6 +45,7 @@ class LocalStorage implements LocalStorageDestinationPort
         }
         foreach ($rawGenerator as $line) {
             fwrite($handle, $line);
+            fflush($handle);
         }
         fclose($handle);
     }
