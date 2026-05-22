@@ -3,6 +3,7 @@
 namespace Cogep\PhpUtils\FileStorage\Formats\Csv;
 
 use Cogep\PhpUtils\FileStorage\Enums\FileFormatEnum;
+use Cogep\PhpUtils\FileStorage\Formats\CounterRef;
 use Cogep\PhpUtils\FileStorage\Formats\FormatterResult;
 use Cogep\PhpUtils\FileStorage\Ports\FileFormatterWithWarmupLimitInterface;
 use Psr\Log\LoggerInterface;
@@ -55,60 +56,66 @@ class CsvFormatter implements FileFormatterWithWarmupLimitInterface
         }
     }
 
+    /**
+     * Truly lazy/streaming implementation.
+     *
+     * Buffers only the first $warmupLimit entries to discover CSV headers,
+     * emits the header row and buffered rows, then streams each subsequent
+     * entry immediately — without waiting for the entire dataset to be consumed.
+     */
     public function arrayToRaw(iterable $data, int $warmupLimit = 100): FormatterResult
     {
-        [$buffer, $headers] = $this->bufferDataAndHeaders($data, $warmupLimit);
-        $lines = $this->generateLines($buffer, $headers);
-        $count = count($buffer);
+        $counter = new CounterRef();
 
-        $generator = (function () use ($lines) {
-            foreach ($lines as $line) {
-                yield $line;
-            }
-        })();
-
-        return new FormatterResult($generator, $count > 0 ? $count : 0);
+        return new FormatterResult($this->buildGenerator($data, $warmupLimit, $counter), $counter);
     }
 
     /**
-     * @param iterable<array<string, mixed>> $data
-     * @return array{0: array<array<string, mixed>>, 1: array<string>}
+     * @param iterable<array<string,mixed>> $data
      */
-    private function bufferDataAndHeaders(iterable $data, int $warmupLimit): array
+    private function buildGenerator(iterable $data, int $warmupLimit, CounterRef $counter): \Generator
     {
+        /** @var array<array<string,mixed>> $buffer */
         $buffer = [];
+        /** @var array<string> $headers */
         $headers = [];
         $headerWritten = false;
+
         foreach ($data as $entry) {
             $dataArray = $this->toArray($entry);
+            $counter->value++;
+
             if (! $headerWritten) {
-                $buffer[] = $dataArray;
                 $this->updateHeaders($dataArray, $headers);
+                $buffer[] = $dataArray;
+
                 if (count($buffer) >= $warmupLimit) {
+                    yield from $this->yieldWarmupBuffer($buffer, $headers);
+                    $buffer = [];
                     $headerWritten = true;
                 }
             } else {
-                $buffer[] = $dataArray;
+                yield $this->formatCsvRow($dataArray, $headers);
             }
         }
-        return [$buffer, $headers];
+
+        if (! $headerWritten && count($buffer) > 0) {
+            yield from $this->yieldWarmupBuffer($buffer, $headers);
+        }
     }
 
     /**
-     * @param array<array<string, mixed>> $buffer
+     * Yields the header row followed by all buffered rows.
+     *
+     * @param array<array<string,mixed>> $buffer
      * @param array<string> $headers
-     * @return array<string>
      */
-    private function generateLines(array $buffer, array $headers): array
+    private function yieldWarmupBuffer(array $buffer, array $headers): \Generator
     {
-        $lines = [];
-        if (count($buffer) > 0) {
-            $lines[] = $this->formatCsvRow(array_combine($headers, $headers), $headers);
-            foreach ($buffer as $dataArray) {
-                $lines[] = $this->formatCsvRow($dataArray, $headers);
-            }
+        yield $this->formatCsvRow(array_combine($headers, $headers), $headers);
+        foreach ($buffer as $bufferedRow) {
+            yield $this->formatCsvRow($bufferedRow, $headers);
         }
-        return $lines;
     }
 
     /**
