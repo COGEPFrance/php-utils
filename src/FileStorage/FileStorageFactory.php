@@ -8,6 +8,7 @@ use Cogep\PhpUtils\FileStorage\Enums\FileStorageDestinationEnum;
 use Cogep\PhpUtils\FileStorage\Ports\FileDestinationPort;
 use Cogep\PhpUtils\FileStorage\Ports\FileFormatterPort;
 use Cogep\PhpUtils\FileStorage\Ports\FileFormatterWithWarmupLimitInterface;
+use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 
@@ -91,7 +92,17 @@ class FileStorageFactory
         $this->localStorage->saveRawFileFromGenerator($tempPath, $rawGenerator);
         $completeStream = $this->localStorage->fetchRawFile($tempPath);
 
-        $fileDestination->saveRawFile($this->stripPrefix($path), $completeStream);
+        try {
+            $fileDestination->saveRawFile($this->stripPrefix($path), $completeStream);
+        } catch (Exception $e) {
+            $this->logger->error('Échec de l\'envoi vers la destination distante, fichier temporaire conservé.', [
+                'temp_path' => $tempPath,
+                'destination_path' => $path,
+                'error' => $e->getMessage(),
+            ]);
+
+            throw $e;
+        }
         unlink($tempPath);
 
         return new PersisterResultEntity($path, $formatterResult->count);

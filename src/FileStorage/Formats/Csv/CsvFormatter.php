@@ -6,13 +6,11 @@ use Cogep\PhpUtils\FileStorage\Enums\FileFormatEnum;
 use Cogep\PhpUtils\FileStorage\Formats\CounterRef;
 use Cogep\PhpUtils\FileStorage\Formats\FormatterResult;
 use Cogep\PhpUtils\FileStorage\Ports\FileFormatterWithWarmupLimitInterface;
-use Psr\Log\LoggerInterface;
 
 class CsvFormatter implements FileFormatterWithWarmupLimitInterface
 {
-    public function __construct(
-        private readonly LoggerInterface $logger
-    ) {
+    public function __construct()
+    {
     }
 
     public function getFileFormat(): FileFormatEnum
@@ -172,11 +170,6 @@ class CsvFormatter implements FileFormatterWithWarmupLimitInterface
         $line = [];
         foreach ($headers as $header) {
             $value = isset($data[$header]) ? $this->formatValue($data[$header]) : '';
-            $this->logger->debug('header', [
-                'header' => $header,
-                'value' => $value,
-                'data' => $data,
-            ]);
             $line[] = $value;
         }
         return implode(';', $line) . "\n";
