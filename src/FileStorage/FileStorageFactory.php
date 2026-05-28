@@ -109,6 +109,41 @@ class FileStorageFactory
     }
 
     /**
+     * @return iterable<array<string,mixed>>
+     */
+    public function read(string $path): iterable
+    {
+        $extension = pathinfo($path, PATHINFO_EXTENSION);
+        $fileFormat = FileFormatEnum::tryFrom(strtolower($extension))?->value;
+
+        if ($fileFormat === null || ! isset($this->fileFormatters[$fileFormat])) {
+            throw new \InvalidArgumentException(sprintf('Format de fichier non supporté : %s', $extension));
+        }
+
+        $this->logger->info(sprintf('Formatter %s', $fileFormat));
+
+        $formatter = $this->fileFormatters[$fileFormat];
+
+        $destination = $this->resolveDestination($path)
+            ->value;
+
+        $this->logger->info(sprintf('Destination %s', $destination));
+
+        if (! isset($this->fileDestinations[$destination])) {
+            throw new \InvalidArgumentException(sprintf('Destination non supportée : %s', $destination));
+        }
+
+        if ($destination === FileStorageDestinationEnum::LOCAL->value) {
+            $raw = $this->localStorage->fetchRawFile($path);
+        } else {
+            $fileDestination = $this->fileDestinations[$destination];
+            $raw = $fileDestination->fetchRawFile($this->stripPrefix($path));
+        }
+
+        return $formatter->rawToArray($raw);
+    }
+
+    /**
      * @param array<mixed,mixed> $fileDestinations
      */
     private function initFileDestinations(iterable $fileDestinations): void

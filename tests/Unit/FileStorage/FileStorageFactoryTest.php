@@ -199,4 +199,73 @@ class FileStorageFactoryTest extends TestCase
 
         new FileStorageFactory([], [$formatter], $logger);
     }
+
+    public function testReadLocalStorage(): void
+    {
+        $this->formatter->shouldReceive('rawToArray')
+            ->once()
+            ->with('raw_content')
+            ->andReturn([[
+                'a' => 1,
+            ]]);
+        $this->localStorage->shouldReceive('fetchRawFile')
+            ->once()
+            ->with('test.csv')
+            ->andReturn('raw_content');
+        $this->logger->shouldReceive('info')
+            ->twice();
+
+        $factory = new FileStorageFactory([$this->localStorage], [$this->formatter], $this->logger);
+        $result = $factory->read('test.csv');
+
+        $this->assertSame([[
+            'a' => 1,
+        ]], $result);
+    }
+
+    public function testReadRemoteStorage(): void
+    {
+        $remote = Mockery::mock(FileDestinationPort::class);
+        $remote->shouldReceive('getDestination')
+            ->andReturn(FileStorageDestinationEnum::AZURE);
+        $remote->shouldReceive('fetchRawFile')
+            ->once()
+            ->with('container/file.csv')
+            ->andReturn('raw_content');
+
+        $this->formatter->shouldReceive('rawToArray')
+            ->once()
+            ->with('raw_content')
+            ->andReturn([[
+                'a' => 1,
+            ]]);
+        $this->logger->shouldReceive('info')
+            ->twice();
+
+        $factory = new FileStorageFactory([$this->localStorage, $remote], [$this->formatter], $this->logger);
+        $result = $factory->read('azure://container/file.csv');
+
+        $this->assertSame([[
+            'a' => 1,
+        ]], $result);
+    }
+
+    public function testReadThrowsOnUnknownFormat(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        $factory = new FileStorageFactory([$this->localStorage], [$this->formatter], $this->logger);
+        $factory->read('test.unknown');
+    }
+
+    public function testReadThrowsOnUnknownDestination(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        $this->logger->shouldReceive('info')
+            ->twice();
+
+        $factory = new FileStorageFactory([$this->localStorage], [$this->formatter], $this->logger);
+        $factory->read('azure://container/file.csv');
+    }
 }

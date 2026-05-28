@@ -6,7 +6,6 @@ use Cogep\PhpUtils\FileStorage\Enums\FileFormatEnum;
 use Cogep\PhpUtils\FileStorage\Formats\Csv\CsvFormatter;
 use Mockery;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\LoggerInterface;
 
 class CsvFormatterTest extends TestCase
 {
@@ -16,8 +15,7 @@ class CsvFormatterTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->logger = Mockery::mock(LoggerInterface::class);
-        $this->formatter = new CsvFormatter($this->logger);
+        $this->formatter = new CsvFormatter();
     }
 
     protected function tearDown(): void
@@ -54,9 +52,6 @@ class CsvFormatterTest extends TestCase
 
     public function testArrayToRawYieldsCsvWithWarmup()
     {
-        $this->logger->shouldReceive('debug')
-            ->atLeast()
-            ->once();
         $data = [
             [
                 'id' => 1,
@@ -76,9 +71,6 @@ class CsvFormatterTest extends TestCase
 
     public function testArrayToRawYieldsCsvWithoutWarmup()
     {
-        $this->logger->shouldReceive('debug')
-            ->atLeast()
-            ->once();
         $data = [
             [
                 'id' => 1,
