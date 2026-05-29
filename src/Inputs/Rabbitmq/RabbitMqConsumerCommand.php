@@ -2,7 +2,6 @@
 
 namespace Cogep\PhpUtils\Inputs\Rabbitmq;
 
-use Cogep\PhpUtils\Config\Settings;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -20,9 +19,9 @@ class RabbitMqConsumerCommand extends Command
 
     public function __construct(
         private readonly RabbitMqWorker $rabbitMqWorker,
-        private readonly Settings $settings,
+        private readonly RabbitMqConfig $config,
     ) {
-        $queueMapping = $this->settings->getQueueMapping();
+        $queueMapping = $this->config->queue_handler_mapping;
         $this->queues = array_keys($queueMapping);
         parent::__construct();
     }

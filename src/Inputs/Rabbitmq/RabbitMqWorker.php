@@ -2,7 +2,6 @@
 
 namespace Cogep\PhpUtils\Inputs\Rabbitmq;
 
-use Cogep\PhpUtils\Config\Settings;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Message\AMQPMessage;
@@ -12,8 +11,6 @@ use Psr\Log\LoggerInterface;
 
 class RabbitMqWorker
 {
-    private string $dlq_queue;
-
     /**
      * @var array<string,class-string>
      */
@@ -23,17 +20,16 @@ class RabbitMqWorker
         private readonly AMQPStreamConnection $connection,
         private readonly LoggerInterface $logger,
         private readonly ContainerInterface $container,
-        private readonly Settings $settings,
+        private readonly RabbitMqConfig $config,
     ) {
-        $this->dlq_queue = $this->settings->rabbitQueueDlq;
-        $this->queue_mapping = $this->settings->getQueueMapping();
+        $this->queue_mapping = $this->config->queue_handler_mapping;
     }
 
     public function consume(string $queue): void
     {
         $channel = $this->connection->channel();
 
-        $this->declareQueues($channel, $queue, $this->dlq_queue);
+        $this->declareQueues($channel, $queue, $this->config->dl_queue);
 
         if (! isset($this->queue_mapping[$queue])) {
             throw new \RuntimeException("Aucun handler configuré pour la queue : {$queue}");
@@ -59,7 +55,7 @@ class RabbitMqWorker
                 ]);
 
                 $this->logger->info('Envoi du message vers la DLQ: ', [
-                    'queue' => $this->dlq_queue,
+                    'queue' => $this->config->dl_queue,
                 ]);
 
                 $msg->nack();
@@ -84,8 +80,8 @@ class RabbitMqWorker
             false,
             false,
             new AMQPTable([
-                'x-dead-letter-exchange' => '',
-                'x-dead-letter-routing-key' => $dlq_queue,
+                'x-dead-letter-exchange' => $this->config->dl_exchange,
+                'x-dead-letter-routing-key' => $this->config->dl_routing_key,
             ])
         );
     }

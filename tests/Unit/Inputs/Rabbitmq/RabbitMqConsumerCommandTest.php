@@ -22,7 +22,7 @@ class RabbitMqConsumerCommandTest extends BaseMockeryTestCase
 
     public function testExecuteWithArgument()
     {
-        $command = new RabbitMqConsumerCommand($this->worker, new TestConfig());
+        $command = new RabbitMqConsumerCommand($this->worker, new TestConfig()->getRabbitMqConfig());
         $commandTester = new CommandTester($command);
 
         $this->worker->shouldReceive('consume')
@@ -39,7 +39,7 @@ class RabbitMqConsumerCommandTest extends BaseMockeryTestCase
 
     public function testInteractProvidesChoiceIfArgumentMissing()
     {
-        $command = new RabbitMqConsumerCommand($this->worker, new TestConfig());
+        $command = new RabbitMqConsumerCommand($this->worker, new TestConfig()->getRabbitMqConfig());
         $commandTester = new CommandTester($command);
 
         $this->worker->shouldReceive('consume')

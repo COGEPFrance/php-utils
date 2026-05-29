@@ -18,7 +18,10 @@ readonly class TestConfig extends Settings
             rabbitPass: 'guest',
             rabbitQueueCmd: 'test_queue',
             rabbitQueueDlq: 'test-dlq',
-            azureStorageAccount: 'https://test-storage.blob.core.windows.net',
+            rabbitDlqExchange: 'test-dlx',
+            rabbitDlqRoutingKey: 'test-dlk',
+            rabbitExchange: 'test-exchange',
+            azureStorageUrl: 'https://test-storage.blob.core.windows.net',
             azureBlobSasToken: null,
         );
     }
@@ -28,7 +31,7 @@ readonly class TestConfig extends Settings
         return new self();
     }
 
-    public function getQueueMapping(): array
+    protected function getQueueMapping(): array
     {
         return [
             'queue_1' => 'Handler',

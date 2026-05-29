@@ -4,6 +4,7 @@ namespace Cogep\PhpUtils\Config;
 
 use Cogep\PhpUtils\FileStorage\Destinations\AzureBlob\Client\AzureBlobConfig;
 use Cogep\PhpUtils\Inputs\Rabbitmq\QueueHandlers\Commands\RabbitMqCommandQueueHandler;
+use Cogep\PhpUtils\Inputs\Rabbitmq\RabbitMqConfig;
 
 readonly class Settings
 {
@@ -17,7 +18,10 @@ readonly class Settings
         public string $rabbitPass,
         public string $rabbitQueueCmd,
         public string $rabbitQueueDlq,
-        public string $azureStorageAccount,
+        public string $rabbitDlqExchange,
+        public string $rabbitDlqRoutingKey,
+        public string $rabbitExchange,
+        public string $azureStorageUrl,
         public ?string $azureBlobSasToken,
         public int $appPort = 8000,
         public int $rabbitPrefetch = 1,
@@ -40,10 +44,29 @@ readonly class Settings
             rabbitPass: self::getRequiredEnv('RABBITMQ_PASSWORD'),
             rabbitQueueCmd: self::getRequiredEnv('RABBITMQ_QUEUE_COMMANDS'),
             rabbitQueueDlq: self::getRequiredEnv('RABBITMQ_QUEUE_DLQ'),
-            azureStorageAccount: self::getRequiredEnv('AZURE_STORAGE_URL'),
+            rabbitDlqExchange: self::getRequiredEnv('RABBITMQ_DLX'),
+            rabbitDlqRoutingKey: self::getRequiredEnv('RABBITMQ_DLK'),
+            rabbitExchange: self::getRequiredEnv('RABBITMQ_EXCHANGE_NAME'),
+            azureStorageUrl: self::getRequiredEnv('AZURE_STORAGE_URL'),
             azureBlobSasToken: self::getDefaultEnv('AZURE_BLOB_SAS_TOKEN', null),
             appPort: (int) self::getDefaultEnv('APP_PORT', '8000'),
             rabbitPrefetch: (int) self::getDefaultEnv('RABBITMQ_PREFETCH_COUNT', '1'),
+        );
+    }
+
+    public function getAzureBlobConfig(): AzureBlobConfig
+    {
+        return new AzureBlobConfig(accountUrl: $this->azureStorageUrl, sasToken: $this->azureBlobSasToken);
+    }
+
+    public function getRabbitMqConfig(): RabbitMqConfig
+    {
+        return new RabbitMqConfig(
+            dl_queue: $this->rabbitQueueDlq,
+            dl_exchange: $this->rabbitDlqExchange,
+            dl_routing_key: $this->rabbitDlqRoutingKey,
+            exchange: $this->rabbitExchange,
+            queue_handler_mapping: $this->getQueueMapping(),
         );
     }
 
@@ -57,28 +80,24 @@ readonly class Settings
     /**
      * @return array<string, class-string>
      */
-    public function getQueueMapping(): array
+    protected function getQueueMapping(): array
     {
         return [
             $this->rabbitQueueCmd => RabbitMqCommandQueueHandler::class,
         ];
     }
 
-    public function getAzureBlobConfig(): AzureBlobConfig
-    {
-        return new AzureBlobConfig(accountUrl: $this->azureStorageAccount, sasToken: $this->azureBlobSasToken);
-    }
-
     protected static function getDefaultEnv(string $key, string|null $default): ?string
     {
-        return $_ENV[$key] ?? (getenv($key) !== false ? getenv($key) : $default);
+        $getEnv = getenv($key);
+        return $_ENV[$key] ?? ($getEnv !== false ? $getEnv : $default);
     }
 
     protected static function getRequiredEnv(string $key): string
     {
         $value = $_ENV[$key] ?? getenv($key);
 
-        if (empty($value)) {
+        if ($value === false || $value === '') {
             throw new \RuntimeException(sprintf('CRITICAL: Environment variable "%s" is missing or empty.', $key));
         }
 

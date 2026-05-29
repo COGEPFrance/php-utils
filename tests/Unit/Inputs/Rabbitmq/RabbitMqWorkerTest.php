@@ -2,6 +2,7 @@
 
 namespace Cogep\PhpUtils\Tests\Unit\Inputs\Rabbitmq;
 
+use Cogep\PhpUtils\Inputs\Rabbitmq\RabbitMqConfig;
 use Cogep\PhpUtils\Inputs\Rabbitmq\RabbitMqWorker;
 use Cogep\PhpUtils\Tests\BaseMockeryTestCase;
 use Cogep\PhpUtils\Tests\Fixtures\TestConfig;
@@ -24,7 +25,7 @@ class RabbitMqWorkerTest extends BaseMockeryTestCase
 
     private RabbitMqWorker $worker;
 
-    private TestConfig $config;
+    private RabbitMqConfig $config;
 
     protected function setUp(): void
     {
@@ -32,7 +33,8 @@ class RabbitMqWorkerTest extends BaseMockeryTestCase
         $this->logger = Mockery::mock(LoggerInterface::class)->shouldIgnoreMissing();
         $this->container = Mockery::mock(ContainerInterface::class);
         $this->channel = Mockery::mock(AMQPChannel::class);
-        $this->config = new TestConfig();
+        $this->config = new TestConfig()
+            ->getRabbitMqConfig();
 
         $this->worker = new RabbitMqWorker($this->connection, $this->logger, $this->container, $this->config);
     }
@@ -56,7 +58,7 @@ class RabbitMqWorkerTest extends BaseMockeryTestCase
 
     public function testConsumeHandlesMessageAndAcks()
     {
-        $mapping = $this->config->getQueueMapping();
+        $mapping = $this->config->queue_handler_mapping;
         $queueName = array_key_first($mapping);
         $handlerClass = $mapping[$queueName];
 
