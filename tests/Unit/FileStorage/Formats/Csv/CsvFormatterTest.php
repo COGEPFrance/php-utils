@@ -30,7 +30,7 @@ class CsvFormatterTest extends TestCase
 
     public function testRawToArrayParsesCsv()
     {
-        $csv = "id;name\n1;foo\n2;bar\n";
+        $csv = "id,name\n1,foo\n2,bar\n";
         $result = iterator_to_array($this->formatter->rawToArray($csv));
         $this->assertSame([
             [
@@ -64,9 +64,9 @@ class CsvFormatterTest extends TestCase
         ];
         $result = $this->formatter->arrayToRaw($data, 1);
         $lines = iterator_to_array($result->raw, false);
-        $this->assertStringContainsString('id;name', $lines[0]);
-        $this->assertStringContainsString('1;foo', $lines[1]);
-        $this->assertStringContainsString('2;bar', $lines[2]);
+        $this->assertStringContainsString('id,name', $lines[0]);
+        $this->assertStringContainsString('1,foo', $lines[1]);
+        $this->assertStringContainsString('2,bar', $lines[2]);
     }
 
     public function testArrayToRawYieldsCsvWithoutWarmup()
@@ -83,9 +83,9 @@ class CsvFormatterTest extends TestCase
         ];
         $result = $this->formatter->arrayToRaw($data, 10);
         $lines = iterator_to_array($result->raw, false);
-        $this->assertStringContainsString('id;name', $lines[0]);
-        $this->assertStringContainsString('1;foo', $lines[1]);
-        $this->assertStringContainsString('2;bar', $lines[2]);
+        $this->assertStringContainsString('id,name', $lines[0]);
+        $this->assertStringContainsString('1,foo', $lines[1]);
+        $this->assertStringContainsString('2,bar', $lines[2]);
         $this->assertCount(3, $lines);
     }
 
