@@ -12,8 +12,7 @@ class CsvFormatter implements FileFormatterWithWarmupLimitInterface
 
     public function __construct(
         private string $csvDelimiter = ',',
-    )
-    {
+    ) {
     }
 
     public function getFileFormat(): FileFormatEnum
@@ -183,7 +182,7 @@ class CsvFormatter implements FileFormatterWithWarmupLimitInterface
      */
     private function formatArray(array $value): string
     {
-        return  json_encode($value, JSON_THROW_ON_ERROR);
+        return json_encode($value, JSON_THROW_ON_ERROR);
     }
 
     private function sanitizeString(string $value): string
