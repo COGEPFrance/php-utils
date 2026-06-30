@@ -9,7 +9,6 @@ use Cogep\PhpUtils\FileStorage\Ports\FileFormatterWithWarmupLimitInterface;
 
 class CsvFormatter implements FileFormatterWithWarmupLimitInterface
 {
-
     public function __construct(
         private string $csvDelimiter = ',',
     ) {

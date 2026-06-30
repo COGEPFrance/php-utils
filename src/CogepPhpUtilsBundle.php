@@ -69,8 +69,7 @@ class CogepPhpUtilsBundle extends AbstractBundle
             ->factory([service(Settings::class), 'getRabbitMqConfig']);
 
         $services->set(CsvFormatter::class)
-            ->arg('$csvDelimiter', inline_service()
-                ->factory([service(Settings::class), 'getCsvDelimiter']));
+            ->arg('$csvDelimiter', inline_service()->factory([service(Settings::class), 'getCsvDelimiter']));
 
         $services->set(RabbitMqWorker::class)
             ->autowire()
