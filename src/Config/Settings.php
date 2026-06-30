@@ -23,7 +23,7 @@ readonly class Settings
         public string $rabbitExchange,
         public string $azureStorageUrl,
         public ?string $azureBlobSasToken,
-        public string $csvDelimiter = ',',
+        public ?string $csvDelimiter = ',',
         public int $appPort = 8000,
         public int $rabbitPrefetch = 1,
     ) {
@@ -72,6 +72,11 @@ readonly class Settings
         );
     }
 
+    public function getCsvDelimiter(): ?string
+    {
+        return $this->csvDelimiter;
+    }
+
     /**
      * Chaque classe enfant doit implémenter sa propre méthode statique fromEnv(),
      * et appeler explicitement le constructeur parent avec les bons arguments.
@@ -87,11 +92,6 @@ readonly class Settings
         return [
             $this->rabbitQueueCmd => RabbitMqCommandQueueHandler::class,
         ];
-    }
-
-    public function getCsvDelimiter(): string
-    {
-        return $this->csvDelimiter;
     }
 
     protected static function getDefaultEnv(string $key, string|null $default): ?string
