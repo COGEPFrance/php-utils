@@ -11,7 +11,7 @@ class CsvFormatter implements FileFormatterWithWarmupLimitInterface
 {
 
     public function __construct(
-        private string $csvDelimiter,
+        private string $csvDelimiter = ',',
     )
     {
     }
