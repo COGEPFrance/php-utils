@@ -9,9 +9,10 @@ use Cogep\PhpUtils\FileStorage\Ports\FileFormatterWithWarmupLimitInterface;
 
 class CsvFormatter implements FileFormatterWithWarmupLimitInterface
 {
-    public const DELIMITER = ',';
 
-    public function __construct()
+    public function __construct(
+        private string $csvDelimiter,
+    )
     {
     }
 
@@ -32,7 +33,7 @@ class CsvFormatter implements FileFormatterWithWarmupLimitInterface
         fwrite($stream, $raw);
         rewind($stream);
 
-        $headers = fgetcsv($stream, 0, self::DELIMITER, '"', '');
+        $headers = fgetcsv($stream, 0, $this->csvDelimiter, '"', '');
 
         if (! is_array($headers) || empty(array_filter($headers))) {
             fclose($stream);
@@ -43,7 +44,7 @@ class CsvFormatter implements FileFormatterWithWarmupLimitInterface
         $headerCount = count($headers);
 
         try {
-            while (($row = fgetcsv($stream, 0, self::DELIMITER, '"', '')) !== false) {
+            while (($row = fgetcsv($stream, 0, $this->csvDelimiter, '"', '')) !== false) {
                 if (count(array_filter($row)) === 0) {
                     continue;
                 }
@@ -174,7 +175,7 @@ class CsvFormatter implements FileFormatterWithWarmupLimitInterface
             $value = isset($data[$header]) ? $this->formatValue($data[$header]) : '';
             $line[] = $value;
         }
-        return implode(self::DELIMITER, $line) . "\n";
+        return implode($this->csvDelimiter, $line) . "\n";
     }
 
     /**
@@ -182,11 +183,11 @@ class CsvFormatter implements FileFormatterWithWarmupLimitInterface
      */
     private function formatArray(array $value): string
     {
-        return json_encode($value, JSON_THROW_ON_ERROR);
+        return  json_encode($value, JSON_THROW_ON_ERROR);
     }
 
     private function sanitizeString(string $value): string
     {
-        return trim(str_replace([self::DELIMITER, "\r", "\n"], [' ', '', ' '], $value));
+        return trim(str_replace([$this->csvDelimiter, "\r", "\n"], [' ', '', ' '], $value));
     }
 }

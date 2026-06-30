@@ -23,6 +23,7 @@ readonly class Settings
         public string $rabbitExchange,
         public string $azureStorageUrl,
         public ?string $azureBlobSasToken,
+        public string $csvDelimiter = ',',
         public int $appPort = 8000,
         public int $rabbitPrefetch = 1,
     ) {
@@ -49,6 +50,7 @@ readonly class Settings
             rabbitExchange: self::getRequiredEnv('RABBITMQ_EXCHANGE_NAME'),
             azureStorageUrl: self::getRequiredEnv('AZURE_STORAGE_URL'),
             azureBlobSasToken: self::getDefaultEnv('AZURE_BLOB_SAS_TOKEN', null),
+            csvDelimiter: self::getDefaultEnv('CSV_DELIMITER', ','),
             appPort: (int) self::getDefaultEnv('APP_PORT', '8000'),
             rabbitPrefetch: (int) self::getDefaultEnv('RABBITMQ_PREFETCH_COUNT', '1'),
         );
@@ -85,6 +87,11 @@ readonly class Settings
         return [
             $this->rabbitQueueCmd => RabbitMqCommandQueueHandler::class,
         ];
+    }
+
+    public function getCsvDelimiter(): string
+    {
+        return $this->csvDelimiter;
     }
 
     protected static function getDefaultEnv(string $key, string|null $default): ?string

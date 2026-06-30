@@ -7,6 +7,7 @@ use Cogep\PhpUtils\Command\CommandRegistry;
 use Cogep\PhpUtils\Config\Settings;
 use Cogep\PhpUtils\DependencyInjection\Compiler\BusCommandGeneratorPass;
 use Cogep\PhpUtils\FileStorage\Destinations\AzureBlob\Client\AzureBlobConfig;
+use Cogep\PhpUtils\FileStorage\Formats\Csv\CsvFormatter;
 use Cogep\PhpUtils\Inputs\Rabbitmq\QueueHandlers\RabbitMqQueueHandlerInterface;
 use Cogep\PhpUtils\Inputs\Rabbitmq\RabbitMqConfig;
 use Cogep\PhpUtils\Inputs\Rabbitmq\RabbitMqWorker;
@@ -17,6 +18,7 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\inline_service;
 
 class CogepPhpUtilsBundle extends AbstractBundle
 {
@@ -65,6 +67,10 @@ class CogepPhpUtilsBundle extends AbstractBundle
 
         $services->set(RabbitMqConfig::class)
             ->factory([service(Settings::class), 'getRabbitMqConfig']);
+
+        $services->set(CsvFormatter::class)
+            ->arg('$csvDelimiter', inline_service()
+                ->factory([service(Settings::class), 'getCsvDelimiter']));
 
         $services->set(RabbitMqWorker::class)
             ->autowire()
