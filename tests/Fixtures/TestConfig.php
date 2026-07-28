@@ -23,6 +23,7 @@ readonly class TestConfig extends Settings
             rabbitExchange: 'test-exchange',
             azureStorageUrl: 'https://test-storage.blob.core.windows.net',
             azureBlobSasToken: null,
+            rabbitVhost: '/',
         );
     }
 

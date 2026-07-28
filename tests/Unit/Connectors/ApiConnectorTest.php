@@ -9,13 +9,7 @@ class ApiConnectorTest extends AbstractApiConnectorTestCase
 {
     protected function createConnector(): ApiConnector
     {
-        return new class(
-            $this->httpClient,
-            $this->apiConfig,
-            $this->cacheConfig,
-            $this->cache,
-            $this->logger
-        ) extends ApiConnector {
+        return new class($this->httpClient, $this->apiConfig, $this->cacheConfig, $this->cache, $this->logger) extends ApiConnector {
         };
     }
 }

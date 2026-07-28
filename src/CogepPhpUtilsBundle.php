@@ -81,7 +81,8 @@ class CogepPhpUtilsBundle extends AbstractBundle
             $settings->rabbitHost,
             $settings->rabbitPort,
             $settings->rabbitUser,
-            $settings->rabbitPass
+            $settings->rabbitPass,
+            vhost: $settings->rabbitVhost
         );
     }
 

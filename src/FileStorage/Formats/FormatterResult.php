@@ -3,7 +3,7 @@
 namespace Cogep\PhpUtils\FileStorage\Formats;
 
 /**
- * @property-read int $count
+ * @property int $count
  */
 class FormatterResult
 {

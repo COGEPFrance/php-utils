@@ -23,6 +23,7 @@ readonly class Settings
         public string $rabbitExchange,
         public string $azureStorageUrl,
         public ?string $azureBlobSasToken,
+        public string $rabbitVhost,
         public int $appPort = 8000,
         public int $rabbitPrefetch = 1,
     ) {
@@ -49,8 +50,9 @@ readonly class Settings
             rabbitExchange: self::getRequiredEnv('RABBITMQ_EXCHANGE_NAME'),
             azureStorageUrl: self::getRequiredEnv('AZURE_STORAGE_URL'),
             azureBlobSasToken: self::getDefaultEnv('AZURE_BLOB_SAS_TOKEN', null),
+            rabbitVhost: self::getDefaultEnv('RABBITMQ_VHOST', '/'),
             appPort: (int) self::getDefaultEnv('APP_PORT', '8000'),
-            rabbitPrefetch: (int) self::getDefaultEnv('RABBITMQ_PREFETCH_COUNT', '1'),
+            rabbitPrefetch: (int) self::getDefaultEnv('RABBITMQ_PREFETCH_COUNT', '1')
         );
     }
 
@@ -87,7 +89,12 @@ readonly class Settings
         ];
     }
 
-    protected static function getDefaultEnv(string $key, string|null $default): ?string
+    /**
+     * @template T of string|null
+     * @param T $default
+     * @return T
+     */
+    protected static function getDefaultEnv(string $key, string|null $default): string|null
     {
         $getEnv = getenv($key);
         return $_ENV[$key] ?? ($getEnv !== false ? $getEnv : $default);

@@ -67,16 +67,7 @@ class ConsoleBusCommandTest extends BaseMockeryTestCase
         $this->serializer->shouldReceive('serialize')
             ->andReturn('{"status":"success"}');
 
-        $command = new class(
-            'test:bus',
-            $this->dtoClass,
-            $this->serializer,
-            $this->denormalizer,
-            $this->logger,
-            $this->helper,
-            $this->bus,
-            $this->validator
-        ) extends ConsoleBusCommand {
+        $command = new class('test:bus', $this->dtoClass, $this->serializer, $this->denormalizer, $this->logger, $this->helper, $this->bus, $this->validator) extends ConsoleBusCommand {
             protected function terminate(int $code): void
             {
             }
@@ -116,16 +107,7 @@ class ConsoleBusCommandTest extends BaseMockeryTestCase
         $this->serializer->shouldReceive('serialize')
             ->andReturn('{"status":"error"}');
 
-        $command = new class(
-            'test:bus',
-            $this->dtoClass,
-            $this->serializer,
-            $this->denormalizer,
-            $this->logger,
-            $this->helper,
-            $this->bus,
-            $this->validator
-        ) extends ConsoleBusCommand {
+        $command = new class('test:bus', $this->dtoClass, $this->serializer, $this->denormalizer, $this->logger, $this->helper, $this->bus, $this->validator) extends ConsoleBusCommand {
             protected function terminate(int $code): void
             {
             }
