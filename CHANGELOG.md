@@ -1,3 +1,10 @@
+## [3.3.1](https://github.com/COGEPFrance/php-utils/compare/v3.3.0...v3.3.1) (2026-08-26)
+
+
+### Bug Fixes
+
+* publish on packagist ([eb5b85c](https://github.com/COGEPFrance/php-utils/commit/eb5b85c6edc81e52d8fa1a8da068579ee817d7f7))
+
 # 1.0.0 (2026-08-26)
 
 
