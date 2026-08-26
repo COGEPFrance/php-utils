@@ -17,6 +17,6 @@ jobs:
 
           - name: Notify Packagist
             run: |
-              curl -XPOST -H 'content-type:application/json' \
+              curl --fail-with-body -XPOST -H 'content-type:application/json' \
                 'https://packagist.org/api/update-package?username=${{ secrets.PACKAGIST_USERNAME }}&apiToken=${{ secrets.PACKAGIST_API_TOKEN }}' \
-                -d '{"repository":{"url":"https://packagist.org/packages/cogepfrance/php-utils"}}'
+                -d "{\"repository\":{\"url\":\"https://github.com/${GITHUB_REPOSITORY}\"}}"
