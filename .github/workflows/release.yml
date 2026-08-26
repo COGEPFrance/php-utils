@@ -1,0 +1,30 @@
+name: release
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GHCR_AND_RELEASE_WORKFLOW_PAT }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - run: npm install
+
+      - name: Run semantic release
+        run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GHCR_AND_RELEASE_WORKFLOW_PAT }}

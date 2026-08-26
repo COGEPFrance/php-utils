@@ -1,0 +1,22 @@
+name: Build Service
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+          - uses: actions/checkout@v4
+
+          - name: Notify Packagist
+            run: |
+              curl -XPOST -H 'content-type:application/json' \
+                'https://packagist.org/api/update-package?username=${{ secrets.PACKAGIST_USERNAME }}&apiToken=${{ secrets.PACKAGIST_API_TOKEN }}' \
+                -d '{"repository":{"url":"https://packagist.org/packages/cogepfrance/php-utils"}}'
