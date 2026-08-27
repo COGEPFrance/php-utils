@@ -19,6 +19,7 @@
     ],
     "require": {
         "php": ">=8.4",
+        "phpstan/extension-installer": "^1.4",
         "ext-amqp": "*",
         "ext-curl": "*",
         "symfony/string": "^8.0",
@@ -61,11 +62,19 @@
         "lint-test": "vendor/bin/ecs check --config=./config/ecs-lint.php",
         "complexity": "vendor/bin/ecs check --config=./config/ecs-quality.php --no-progress-bar --ansi"
     },
+    "extra": {
+        "phpstan": {
+            "includes": [
+                "phpstan-extension.neon"
+            ]
+        }
+    },
     "config": {
         "allow-plugins": {
             "captainhook/hook-installer": true,
             "captainhook/captainhook-phar": true,
-            "dealerdirect/phpcodesniffer-composer-installer": true
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "phpstan/extension-installer": true
         }
     }
 }

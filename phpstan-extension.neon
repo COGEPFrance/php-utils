@@ -1,0 +1,8 @@
+services:
+    -
+        class: Cogep\PhpUtils\Tests\PHPStan\FilterDataDtoRule
+        arguments:
+            reflectionProvider: @reflectionProvider
+        tags:
+            - phpstan.rules.rule
+
