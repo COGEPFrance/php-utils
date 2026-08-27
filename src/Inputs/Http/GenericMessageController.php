@@ -24,7 +24,7 @@ class GenericMessageController extends AbstractController
     {
         $messageClass = $request->attributes->get('_message_class');
 
-        if (! is_string($messageClass) || ! class_exists($messageClass)) {
+        if (! is_string($messageClass)) {
             throw new \InvalidArgumentException('Missing message class.');
         }
 
@@ -46,8 +46,6 @@ class GenericMessageController extends AbstractController
     }
 
     /**
-     * @param class-string $messageClass
-     *
      * @return array<string, mixed>
      */
     private function getPayload(Request $request, string $messageClass): array
