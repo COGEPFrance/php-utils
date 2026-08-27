@@ -1,3 +1,10 @@
+# [3.4.0](https://github.com/COGEPFrance/php-utils/compare/v3.3.1...v3.4.0) (2026-08-27)
+
+
+### Features
+
+* add new dto type to have filter and data and fix get needing a … ([#12](https://github.com/COGEPFrance/php-utils/issues/12)) ([77b39d6](https://github.com/COGEPFrance/php-utils/commit/77b39d6abd88fa3e6c20edfda1389af82ac90629))
+
 ## [3.3.1](https://github.com/COGEPFrance/php-utils/compare/v3.3.0...v3.3.1) (2026-08-26)
 
 
