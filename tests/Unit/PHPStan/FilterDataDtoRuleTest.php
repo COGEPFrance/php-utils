@@ -41,7 +41,7 @@ class FilterDataDtoRuleTest extends TestCase
 
     private function runPhpStan(string $file): string
     {
-        $configFile = $this->projectRoot . '/phpstan.neon';
+        $configFile = $this->projectRoot . '/tests/Fixtures/PHPStan/phpstan-rule-test.neon';
 
         $cmd = sprintf(
             'php %s analyse %s -c %s --no-progress --error-format=raw 2>&1',
