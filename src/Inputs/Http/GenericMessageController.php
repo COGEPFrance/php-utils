@@ -2,6 +2,7 @@
 
 namespace Cogep\PhpUtils\Inputs\Http;
 
+use Cogep\PhpUtils\Classes\FilterDataDtoInterface;
 use Cogep\PhpUtils\Helpers\EntityValidator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,10 +22,17 @@ class GenericMessageController extends AbstractController
 
     public function __invoke(Request $request): JsonResponse
     {
+        $messageClass = $request->attributes->get('_message_class');
+
+        if (! is_string($messageClass)) {
+            throw new \InvalidArgumentException('Missing message class.');
+        }
+
+        $payload = $this->getPayload($request, $messageClass);
 
         $message = $this->serializer->deserialize(
-            $request->getContent(),
-            $request->attributes->get('_message_class'),
+            json_encode($payload, JSON_THROW_ON_ERROR),
+            $messageClass,
             'json'
         );
 
@@ -35,5 +43,53 @@ class GenericMessageController extends AbstractController
         $result = $envelope->last(HandledStamp::class)?->getResult();
 
         return new JsonResponse($result);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getPayload(Request $request, string $messageClass): array
+    {
+        $queryPayload = $request->query->all();
+        $bodyPayload = $this->getBodyPayload($request);
+
+        if (is_subclass_of($messageClass, FilterDataDtoInterface::class)) {
+            $routeParams = array_filter(
+                $request->attributes->all(),
+                static fn (string $key): bool => ! str_starts_with($key, '_'),
+                ARRAY_FILTER_USE_KEY
+            );
+
+            return [
+                'filter' => array_replace($queryPayload, $routeParams),
+                'data' => $bodyPayload,
+            ];
+        }
+
+        if ($request->isMethod('GET') || $request->isMethod('HEAD')) {
+            return $queryPayload;
+        }
+
+        return array_replace($queryPayload, $bodyPayload);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getBodyPayload(Request $request): array
+    {
+        $content = trim($request->getContent());
+
+        if ($content === '') {
+            return [];
+        }
+
+        $payload = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
+
+        if (! is_array($payload)) {
+            throw new \InvalidArgumentException('JSON body must be an object.');
+        }
+
+        return $payload;
     }
 }

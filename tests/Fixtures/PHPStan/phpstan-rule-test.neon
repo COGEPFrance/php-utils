@@ -1,0 +1,6 @@
+includes:
+    - ../../../phpstan-extension.neon
+
+parameters:
+    level: 8
+

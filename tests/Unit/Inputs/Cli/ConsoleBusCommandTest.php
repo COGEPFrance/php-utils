@@ -9,6 +9,7 @@ use Cogep\PhpUtils\Helpers\EntityValidator;
 use Cogep\PhpUtils\Inputs\Cli\ConsoleBusCommand;
 use Cogep\PhpUtils\Inputs\Cli\ConsoleCommandHelper;
 use Cogep\PhpUtils\Tests\BaseMockeryTestCase;
+use Cogep\PhpUtils\Tests\Fixtures\FilterData\FilterDataCommandFixture;
 use Mockery;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
@@ -122,5 +123,74 @@ class ConsoleBusCommandTest extends BaseMockeryTestCase
 
         $output = new BufferedOutput();
         $this->assertEquals(Command::FAILURE, $command->run($input, $output));
+    }
+
+    public function testConfigureAddsFilterAndDataOptionsForFilterDataDto(): void
+    {
+        $this->helper->shouldReceive('addOptionsFromDto')
+            ->never();
+
+        $command = new class('test:filter', FilterDataCommandFixture::class, $this->serializer, $this->denormalizer, $this->logger, $this->helper, $this->bus, $this->validator) extends ConsoleBusCommand {
+            protected function terminate(int $code): void
+            {
+            }
+        };
+
+        $this->assertTrue($command->getDefinition()->hasOption('filter'));
+        $this->assertTrue($command->getDefinition()->hasOption('data'));
+        $this->assertFalse($command->getDefinition()->hasOption('id')); // pas d'options DTO flat
+    }
+
+    public function testExecuteWithFilterDataDtoResolvesPayload(): void
+    {
+        $mockDto = Mockery::mock(DTOInterface::class);
+        $responseDto = StandardResponseDto::success(null);
+
+        $this->helper->shouldReceive('addOptionsFromDto')
+            ->never();
+        $this->helper->shouldReceive('setupConsoleLogging')
+            ->once();
+
+        $this->denormalizer
+            ->shouldReceive('denormalize')
+            ->once()
+            ->with([
+                'filter' => [
+                    'id' => '123',
+                ],
+                'data' => [
+                    'name' => 'Chloe',
+                ],
+            ], FilterDataCommandFixture::class)
+            ->andReturn($mockDto);
+
+        $this->validator->shouldReceive('validate')
+            ->once();
+
+        $envelope = new Envelope($mockDto, [new HandledStamp($responseDto, 'handler')]);
+        $this->bus->shouldReceive('dispatch')
+            ->andReturn($envelope);
+        $this->serializer->shouldReceive('serialize')
+            ->andReturn('{"status":"success"}');
+
+        $command = new class('test:filter', FilterDataCommandFixture::class, $this->serializer, $this->denormalizer, $this->logger, $this->helper, $this->bus, $this->validator) extends ConsoleBusCommand {
+            protected function terminate(int $code): void
+            {
+            }
+        };
+
+        $input = Mockery::mock(InputInterface::class)->shouldIgnoreMissing();
+        $input->shouldReceive('getOption')
+            ->with('json')
+            ->andReturn(true);
+        $input->shouldReceive('getOption')
+            ->with('filter')
+            ->andReturn('{"id":"123"}');
+        $input->shouldReceive('getOption')
+            ->with('data')
+            ->andReturn('{"name":"Chloe"}');
+
+        $output = new BufferedOutput();
+        $this->assertEquals(Command::SUCCESS, $command->run($input, $output));
     }
 }

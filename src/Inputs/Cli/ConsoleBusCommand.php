@@ -3,6 +3,7 @@
 namespace Cogep\PhpUtils\Inputs\Cli;
 
 use Cogep\PhpUtils\Classes\DTOInterface;
+use Cogep\PhpUtils\Classes\FilterDataDtoInterface;
 use Cogep\PhpUtils\Classes\Responses\ResponseStatusEnum;
 use Cogep\PhpUtils\Classes\Responses\StandardResponseDto;
 use Cogep\PhpUtils\Helpers\EntityValidator;
@@ -39,7 +40,13 @@ class ConsoleBusCommand extends Command
     protected function configure(): void
     {
         $this->addOption('json', null, InputOption::VALUE_NONE, 'Output in JSON format');
-        $this->helper->addOptionsFromDto($this, $this->dtoClass);
+
+        if (is_subclass_of($this->dtoClass, FilterDataDtoInterface::class)) {
+            $this->addOption('filter', null, InputOption::VALUE_REQUIRED, 'JSON object of filter criteria', '{}');
+            $this->addOption('data', null, InputOption::VALUE_REQUIRED, 'JSON object of data payload', '{}');
+        } else {
+            $this->helper->addOptionsFromDto($this, $this->dtoClass);
+        }
     }
 
     protected function initialize(InputInterface $input, OutputInterface $output): void
@@ -59,9 +66,7 @@ class ConsoleBusCommand extends Command
             $this->helper->interactivelyFillDto($input, $output, $this->dtoClass);
         }
 
-        $data = $input->getOptions();
-
-        $dto = $this->denormalizer->denormalize($data, $this->dtoClass);
+        $dto = $this->denormalizer->denormalize($this->resolvePayload($input), $this->dtoClass);
 
         $this->entityValidator->validate($dto);
 
@@ -93,6 +98,24 @@ class ConsoleBusCommand extends Command
     protected function terminate(int $code): void
     {
         exit($code);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function resolvePayload(InputInterface $input): array
+    {
+        if (! is_subclass_of($this->dtoClass, FilterDataDtoInterface::class)) {
+            return $input->getOptions();
+        }
+
+        $filter = json_decode((string) $input->getOption('filter'), true, 512, JSON_THROW_ON_ERROR);
+        $data = json_decode((string) $input->getOption('data'), true, 512, JSON_THROW_ON_ERROR);
+
+        return [
+            'filter' => is_array($filter) ? $filter : [],
+            'data' => is_array($data) ? $data : [],
+        ];
     }
 
     private function renderJson(string $json, int $exitCode): int
