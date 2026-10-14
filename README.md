@@ -30,6 +30,11 @@ Cette librairie regroupe un ensemble de composants utilitaires pour uniformiser 
 ## 📝 Logs
 * **LoggerFormator** : Gère le formatage et la colorisation des logs dans la console.
 * **UrlTruncatorProcessor** : Processeur Monolog qui tronque les messages de plus de 500 caractères en ajoutant `...` pour éviter les logs trop volumineux.
+* **SensitiveDataRedactorProcessor** : Masque le host et la query string de toute URL (ainsi que les bearer tokens) présente dans un log. Activé automatiquement, **uniquement sur le channel Monolog `sensitive`** (channel générique, partagé par tout composant de la lib exposant potentiellement des secrets dans une URL — aujourd'hui `AzureBlobClient` via le service `cogep_php_utils.sensitive_http_client`, réutilisable pour de futurs connecteurs).
+    * ⚙️ Fonctionne sans configuration dans l'application consommatrice (le channel `sensitive` est créé automatiquement via `#[WithMonologChannel]`).
+    * ⚠️ Nécessite que `MonologBundle` soit **activé** (`config/bundles.php`) dans l'application — c'est quasi toujours le cas dès qu'un logger PSR-3 est utilisé. Si ce n'est pas le cas, la fonctionnalité se désactive silencieusement (pas d'erreur, pas de log sur ce channel).
+    * 💡 Si votre `monolog.yaml` restreint les handlers à une liste explicite de channels (`channels: ['app', ...]` en mode inclusif), pensez à y ajouter `sensitive` pour voir apparaître ces logs.
+    * ℹ️ Les headers HTTP (dont `Authorization: Bearer ...`) ne sont **pas** inclus par défaut dans les logs internes de Symfony HttpClient (seuls méthode/URL/status/durée le sont) : le masquage du channel `sensitive` cible donc avant tout les secrets embarqués dans l'URL elle-même (SAS tokens, presigned URLs...).
 
 ## 🔄 Mapping
 * **DtoEntityMapper** :

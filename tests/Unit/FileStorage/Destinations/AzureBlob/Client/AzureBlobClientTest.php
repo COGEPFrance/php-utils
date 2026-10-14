@@ -4,12 +4,12 @@ namespace Cogep\PhpUtils\Tests\Unit\FileStorage\Destinations\AzureBlob\Client;
 
 use Cogep\PhpUtils\FileStorage\Destinations\AzureBlob\Client\AzureBlobClient;
 use Cogep\PhpUtils\FileStorage\Destinations\AzureBlob\Client\AzureBlobConfig;
+use Cogep\PhpUtils\Http\SensitiveHttpClient;
 use Cogep\PhpUtils\Tests\BaseMockeryTestCase;
 use Mockery;
 use Psr\Log\LoggerInterface;
 use ReflectionClass;
 use RuntimeException;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 class AzureBlobClientTest extends BaseMockeryTestCase
@@ -19,7 +19,7 @@ class AzureBlobClientTest extends BaseMockeryTestCase
     protected function setUp(): void
     {
         $config = new AzureBlobConfig('https://account.blob.core.windows.net', 'sasToken=abc');
-        $httpClient = Mockery::mock(HttpClientInterface::class);
+        $httpClient = Mockery::mock(SensitiveHttpClient::class);
         $logger = Mockery::mock(LoggerInterface::class);
 
         $this->client = new AzureBlobClient($config, $httpClient, $logger);
@@ -46,7 +46,7 @@ class AzureBlobClientTest extends BaseMockeryTestCase
     public function testPutBlobCallsHttpClientWithCorrectHeaders()
     {
         $config = new AzureBlobConfig('https://account.blob.core.windows.net', 'sasToken=abc');
-        $httpClient = Mockery::mock(HttpClientInterface::class);
+        $httpClient = Mockery::mock(SensitiveHttpClient::class);
         $logger = Mockery::mock(LoggerInterface::class);
         $client = new AzureBlobClient($config, $httpClient, $logger);
 
@@ -67,7 +67,7 @@ class AzureBlobClientTest extends BaseMockeryTestCase
     public function testGetBlobReturnsContent()
     {
         $config = new AzureBlobConfig('https://account.blob.core.windows.net', 'sasToken=abc');
-        $httpClient = Mockery::mock(HttpClientInterface::class);
+        $httpClient = Mockery::mock(SensitiveHttpClient::class);
         $logger = Mockery::mock(LoggerInterface::class);
         $client = new AzureBlobClient($config, $httpClient, $logger);
 

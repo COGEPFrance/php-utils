@@ -10,6 +10,7 @@ use Cogep\PhpUtils\FileStorage\Destinations\AzureBlob\Client\AzureBlobConfig;
 use Cogep\PhpUtils\Inputs\Rabbitmq\QueueHandlers\RabbitMqQueueHandlerInterface;
 use Cogep\PhpUtils\Inputs\Rabbitmq\RabbitMqConfig;
 use Cogep\PhpUtils\Inputs\Rabbitmq\RabbitMqWorker;
+use Cogep\PhpUtils\Logs\SensitiveDataRedactorProcessor;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -73,6 +74,11 @@ class CogepPhpUtilsBundle extends AbstractBundle
 
         $services->set(AzureBlobConfig::class)
             ->factory([service(Settings::class), 'getAzureBlobConfig']);
+
+        $services->set(SensitiveDataRedactorProcessor::class)
+            ->tag('monolog.processor', [
+                'channel' => 'sensitive',
+            ]);
     }
 
     public static function createConnection(Settings $settings): AMQPStreamConnection
