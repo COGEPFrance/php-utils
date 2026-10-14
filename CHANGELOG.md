@@ -1,3 +1,10 @@
+# [3.5.0](https://github.com/COGEPFrance/php-utils/compare/v3.4.0...v3.5.0) (2026-10-14)
+
+
+### Features
+
+* add httpclient with sensitive log and activate it on BlobAzureClient ([#13](https://github.com/COGEPFrance/php-utils/issues/13)) ([d5e02c9](https://github.com/COGEPFrance/php-utils/commit/d5e02c94ad4e43dd28bab6d864fc4d9bc0954672))
+
 # [3.4.0](https://github.com/COGEPFrance/php-utils/compare/v3.3.1...v3.4.0) (2026-08-27)
 
 
