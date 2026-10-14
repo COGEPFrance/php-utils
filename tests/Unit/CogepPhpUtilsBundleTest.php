@@ -6,7 +6,10 @@ use Cogep\PhpUtils\CogepPhpUtilsBundle;
 use Cogep\PhpUtils\Command\BusCommand;
 use Cogep\PhpUtils\Command\CommandRegistry;
 use Cogep\PhpUtils\DependencyInjection\Compiler\BusCommandGeneratorPass;
+use Cogep\PhpUtils\FileStorage\Destinations\AzureBlob\Client\AzureBlobClient;
+use Cogep\PhpUtils\Http\SensitiveHttpClient;
 use Cogep\PhpUtils\Inputs\Rabbitmq\RabbitMqWorker;
+use Cogep\PhpUtils\Logs\SensitiveDataRedactorProcessor;
 use Cogep\PhpUtils\Tests\BaseMockeryTestCase;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use Symfony\Component\Config\FileLocator;
@@ -68,6 +71,18 @@ class CogepPhpUtilsBundleTest extends BaseMockeryTestCase
 
         $this->assertTrue($container->hasDefinition(AMQPStreamConnection::class));
         $this->assertTrue($container->hasDefinition(RabbitMqWorker::class));
+
+        // SensitiveHttpClient et AzureBlobClient sont auto-découverts via services->load() :
+        // leur wiring (y compris le rattachement du logger au channel "sensitive" dans
+        // SensitiveHttpClient) ne nécessite plus aucune configuration explicite ici.
+        $this->assertTrue($container->hasDefinition(SensitiveHttpClient::class));
+        $this->assertTrue($container->hasDefinition(AzureBlobClient::class));
+
+        // Le processeur de redaction ne doit être actif QUE sur le channel "sensitive".
+        $this->assertTrue($container->hasDefinition(SensitiveDataRedactorProcessor::class));
+        $processorTags = $container->getDefinition(SensitiveDataRedactorProcessor::class)->getTags();
+        $this->assertArrayHasKey('monolog.processor', $processorTags);
+        $this->assertSame('sensitive', $processorTags['monolog.processor'][0]['channel'] ?? null);
 
         $reflection = new \ReflectionClass($container);
         $property = $reflection->getProperty('autoconfiguredAttributes');

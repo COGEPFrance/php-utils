@@ -2,15 +2,15 @@
 
 namespace Cogep\PhpUtils\FileStorage\Destinations\AzureBlob\Client;
 
+use Cogep\PhpUtils\Http\SensitiveHttpClient;
 use Psr\Log\LoggerInterface;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 class AzureBlobClient
 {
     public function __construct(
         private readonly AzureBlobConfig $config,
-        private readonly HttpClientInterface $client,
+        private readonly SensitiveHttpClient $client,
         private readonly LoggerInterface $logger,
     ) {
     }
