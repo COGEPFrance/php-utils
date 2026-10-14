@@ -7,6 +7,7 @@ use Cogep\PhpUtils\Command\CommandRegistry;
 use Cogep\PhpUtils\Config\Settings;
 use Cogep\PhpUtils\DependencyInjection\Compiler\BusCommandGeneratorPass;
 use Cogep\PhpUtils\FileStorage\Destinations\AzureBlob\Client\AzureBlobConfig;
+use Cogep\PhpUtils\Http\SensitiveHttpClient;
 use Cogep\PhpUtils\Inputs\Rabbitmq\QueueHandlers\RabbitMqQueueHandlerInterface;
 use Cogep\PhpUtils\Inputs\Rabbitmq\RabbitMqConfig;
 use Cogep\PhpUtils\Inputs\Rabbitmq\RabbitMqWorker;
@@ -24,15 +25,15 @@ class CogepPhpUtilsBundle extends AbstractBundle
     /**
      * @param array<mixed> $config
      */
-    public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
+    public function loadExtension(array $config, ContainerConfigurator $configurator, ContainerBuilder $container): void
     {
-        $services = $container->services();
+        $services = $configurator->services();
 
         $services->defaults()
             ->autowire()
             ->autoconfigure();
 
-        $builder->registerAttributeForAutoconfiguration(
+        $container->registerAttributeForAutoconfiguration(
             BusCommand::class,
             static function (ChildDefinition $definition): void {
                 $definition->addTag('bus.command');
@@ -40,7 +41,7 @@ class CogepPhpUtilsBundle extends AbstractBundle
             }
         );
 
-        $builder->registerForAutoconfiguration(RabbitMqQueueHandlerInterface::class)
+        $container->registerForAutoconfiguration(RabbitMqQueueHandlerInterface::class)
             ->addTag('rabbitmq.handler')
             ->setPublic(true);
 
@@ -57,6 +58,9 @@ class CogepPhpUtilsBundle extends AbstractBundle
                 __DIR__ . '/Command/CommandRegistry.php',
                 __DIR__ . '/Config/Settings.php',
             ]);
+
+        $services->get(SensitiveHttpClient::class)
+            ->arg('$client', null);
 
         $services->set(Settings::class, Settings::class)
             ->factory([Settings::class, 'fromEnv']);

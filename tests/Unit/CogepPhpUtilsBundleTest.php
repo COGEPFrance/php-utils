@@ -11,6 +11,7 @@ use Cogep\PhpUtils\Http\SensitiveHttpClient;
 use Cogep\PhpUtils\Inputs\Rabbitmq\RabbitMqWorker;
 use Cogep\PhpUtils\Logs\SensitiveDataRedactorProcessor;
 use Cogep\PhpUtils\Tests\BaseMockeryTestCase;
+use Monolog\Attribute\WithMonologChannel;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -48,6 +49,15 @@ class CogepPhpUtilsBundleTest extends BaseMockeryTestCase
         $this->assertTrue($found, 'BusCommandGeneratorPass devrait être ajouté au container.');
     }
 
+    public function testSensitiveHttpClientUsesSensitiveMonologChannelAttribute(): void
+    {
+        $reflection = new \ReflectionClass(SensitiveHttpClient::class);
+        $attributes = $reflection->getAttributes(WithMonologChannel::class);
+
+        $this->assertCount(1, $attributes);
+        $this->assertSame('sensitive', $attributes[0]->newInstance()->channel);
+    }
+
     public function testLoadExtensionRegistersServices(): void
     {
         $container = new ContainerBuilder();
@@ -73,10 +83,11 @@ class CogepPhpUtilsBundleTest extends BaseMockeryTestCase
         $this->assertTrue($container->hasDefinition(RabbitMqWorker::class));
 
         // SensitiveHttpClient et AzureBlobClient sont auto-découverts via services->load() :
-        // leur wiring (y compris le rattachement du logger au channel "sensitive" dans
-        // SensitiveHttpClient) ne nécessite plus aucune configuration explicite ici.
+        // le channel sensible est porté par l'attribut WithMonologChannel du service,
+        // pas par un wiring explicite du bundle.
         $this->assertTrue($container->hasDefinition(SensitiveHttpClient::class));
         $this->assertTrue($container->hasDefinition(AzureBlobClient::class));
+        $this->assertNull($container->getDefinition(SensitiveHttpClient::class)->getArgument('$client'));
 
         // Le processeur de redaction ne doit être actif QUE sur le channel "sensitive".
         $this->assertTrue($container->hasDefinition(SensitiveDataRedactorProcessor::class));
