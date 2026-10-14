@@ -1,3 +1,10 @@
+## [3.5.1](https://github.com/COGEPFrance/php-utils/compare/v3.5.0...v3.5.1) (2026-10-14)
+
+
+### Bug Fixes
+
+* sensitive logging ([70658b3](https://github.com/COGEPFrance/php-utils/commit/70658b3f127a0ad3b4e541dbb1a84bc9850bfede))
+
 # [3.5.0](https://github.com/COGEPFrance/php-utils/compare/v3.4.0...v3.5.0) (2026-10-14)
 
 
