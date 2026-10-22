@@ -27,7 +27,7 @@
         "symfony/cache-contracts": "^3.6",
         "symfony/dependency-injection": "^8.0",
         "symfony/monolog-bundle": "^4.0",
-        "symfony/json-streamer": "^8.0",
+        "symfony/json-streamer": "^8.1",
         "symfony/serializer": "^8.0",
         "php-amqplib/php-amqplib": "^3.7.4",
         "symfony/clock": "^8.0",

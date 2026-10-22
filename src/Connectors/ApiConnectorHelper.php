@@ -5,7 +5,6 @@ namespace Cogep\PhpUtils\Connectors;
 use Cogep\PhpUtils\Classes\DTOInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Clock\ClockInterface;
-use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\JsonStreamer\StreamReaderInterface;
 use Symfony\Component\TypeInfo\Type;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -21,7 +20,6 @@ class ApiConnectorHelper
      * @param StreamReaderInterface<array<string, mixed>> $streamReader
      */
     public function __construct(
-        #[Target('json_streamer.stream_reader')]
         private readonly StreamReaderInterface $streamReader,
         protected readonly LoggerInterface $logger,
         private readonly ClockInterface $clock,
