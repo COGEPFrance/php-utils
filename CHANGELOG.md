@@ -1,3 +1,10 @@
+## [3.5.3](https://github.com/COGEPFrance/php-utils/compare/v3.5.2...v3.5.3) (2026-10-22)
+
+
+### Bug Fixes
+
+* update dependencies ([76a1ed7](https://github.com/COGEPFrance/php-utils/commit/76a1ed7f510526fb84ccc070bd7c4589fae37eed))
+
 ## [3.5.2](https://github.com/COGEPFrance/php-utils/compare/v3.5.1...v3.5.2) (2026-10-22)
 
 
