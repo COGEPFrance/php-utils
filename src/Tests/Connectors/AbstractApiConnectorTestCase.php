@@ -70,6 +70,79 @@ abstract class AbstractApiConnectorTestCase extends TestCase
         $this->assertSame('NEW_TOKEN', $this->apiConfig->accessToken);
     }
 
+    public function testAuthenticateAppliesDynamicTtlFromExpiresIn(): void
+    {
+        $expiresIn = 3600;
+        $expectedTtl = $expiresIn - 60;
+
+        $item = $this->createMock(ItemInterface::class);
+        $item->expects($this->once())
+            ->method('expiresAfter')
+            ->with($expectedTtl);
+        $this->cache->method('get')
+            ->willReturnCallback(fn ($key, $callback) => $callback($item));
+
+        $response = $this->createMock(ResponseInterface::class);
+        $response->method('toArray')
+            ->willReturn([
+                'access_token' => 'NEW_TOKEN',
+                'expires_in' => $expiresIn,
+            ]);
+
+        $this->httpClient->method('request')
+            ->willReturn($response);
+
+        $this->createConnector()
+            ->authenticate();
+    }
+
+    public function testAuthenticateClampsDynamicTtlToAMinimumOf60Seconds(): void
+    {
+        $item = $this->createMock(ItemInterface::class);
+        $item->expects($this->once())
+            ->method('expiresAfter')
+            ->with(60);
+
+        $this->cache->method('get')
+            ->willReturnCallback(fn ($key, $callback) => $callback($item));
+
+        $response = $this->createMock(ResponseInterface::class);
+        $response->method('toArray')
+            ->willReturn([
+                'access_token' => 'NEW_TOKEN',
+                'expires_in' => 30, // 30 - 60 < 0, doit être ramené au plancher de 60s
+            ]);
+
+        $this->httpClient->method('request')
+            ->willReturn($response);
+
+        $this->createConnector()
+            ->authenticate();
+    }
+
+    public function testAuthenticateFallsBackToStaticTtlWhenExpiresInIsMissing(): void
+    {
+        $item = $this->createMock(ItemInterface::class);
+        $item->expects($this->once())
+            ->method('expiresAfter')
+            ->with($this->cacheConfig->cacheStoreTime);
+
+        $this->cache->method('get')
+            ->willReturnCallback(fn ($key, $callback) => $callback($item));
+
+        $response = $this->createMock(ResponseInterface::class);
+        $response->method('toArray')
+            ->willReturn([
+                'access_token' => 'NEW_TOKEN',
+            ]);
+
+        $this->httpClient->method('request')
+            ->willReturn($response);
+
+        $this->createConnector()
+            ->authenticate();
+    }
+
     public function testGetHeadersContainsBearerToken(): void
     {
         $this->apiConfig->accessToken = 'MY_TOKEN';

@@ -11,6 +11,8 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 abstract class ApiConnector
 {
+    protected ?int $lastTokenTtl = null;
+
     public function __construct(
         protected readonly HttpClientInterface $client,
         protected readonly ApiClientConnectorConfig $config,
@@ -29,10 +31,12 @@ abstract class ApiConnector
             $this->config->accessToken = $this->cache->get(
                 $this->cacheConfig->cacheName,
                 function (ItemInterface $item) {
-                    $item->expiresAfter($this->cacheConfig->cacheStoreTime);
                     $this->logger->info('fetching access token');
 
-                    return $this->getToken();
+                    $token = $this->getToken();
+                    $item->expiresAfter($this->lastTokenTtl ?? $this->cacheConfig->cacheStoreTime);
+
+                    return $token;
                 }
             );
         } catch (\Exception $e) {
@@ -116,6 +120,21 @@ abstract class ApiConnector
             throw new \RuntimeException('Token invalide ou manquant dans la réponse API.');
         }
 
+        $this->lastTokenTtl = $this->resolveTokenTtl($data);
+
         return (string) $data[$tokenAttribute];
+    }
+
+    /**
+     * @param array<string,mixed> $data
+     */
+    protected function resolveTokenTtl(array $data): ?int
+    {
+        $expiresIn = $data['expires_in'] ?? null;
+        if (! is_numeric($expiresIn)) {
+            return null;
+        }
+
+        return max(60, (int) $expiresIn - 60);
     }
 }
