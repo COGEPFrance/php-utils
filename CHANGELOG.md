@@ -1,3 +1,10 @@
+# [3.6.0](https://github.com/COGEPFrance/php-utils/compare/v3.5.3...v3.6.0) (2026-10-26)
+
+
+### Features
+
+* cache token time set to expiresIn - 6O if found in auth response ([57b6c6c](https://github.com/COGEPFrance/php-utils/commit/57b6c6ce0910c81e9bdf3a8f9eae1cbcdd5b5051))
+
 ## [3.5.3](https://github.com/COGEPFrance/php-utils/compare/v3.5.2...v3.5.3) (2026-10-22)
 
 
